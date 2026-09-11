@@ -1,0 +1,2930 @@
+<!doctype html>
+<html lang="nl">
+    <head>
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+        />
+        <meta name="theme-color" content="#1f2937" />
+        <title>Floorplan Marker</title>
+        <style>
+            :root {
+                --bg: #f3f4f6;
+                --panel: #ffffff;
+                --border: #e5e7eb;
+                --text: #111827;
+                --muted: #6b7280;
+                --accent: #2563eb;
+                --accent-bg: #dbeafe;
+                --danger: #dc2626;
+                --ok: #16a34a;
+                --header-h: 52px;
+                --sidebar-w: 320px;
+                --edit-w: 300px;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            html,
+            body {
+                margin: 0;
+                height: 100%;
+                font-family:
+                    system-ui,
+                    -apple-system,
+                    "Segoe UI",
+                    Roboto,
+                    sans-serif;
+                font-size: 14px;
+                color: var(--text);
+                background: var(--bg);
+                overflow: hidden;
+                -webkit-text-size-adjust: 100%;
+            }
+            button,
+            input,
+            select,
+            textarea {
+                font: inherit;
+                color: inherit;
+            }
+            button {
+                cursor: pointer;
+                border: 1px solid var(--border);
+                background: var(--panel);
+                border-radius: 6px;
+                padding: 6px 10px;
+                line-height: 1.2;
+            }
+            button:hover {
+                background: #f9fafb;
+            }
+            button.primary {
+                background: var(--accent);
+                border-color: var(--accent);
+                color: #fff;
+            }
+            button.primary:hover {
+                background: #1d4ed8;
+            }
+            button.danger {
+                color: var(--danger);
+                border-color: #fecaca;
+            }
+            button.danger:hover {
+                background: #fef2f2;
+            }
+            button.icon {
+                padding: 6px 8px;
+                min-width: 34px;
+            }
+            button.active {
+                background: var(--accent-bg);
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+            button:disabled {
+                opacity: 0.5;
+                cursor: default;
+            }
+            input[type="text"],
+            input[type="search"],
+            select,
+            textarea {
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                padding: 7px 9px;
+                background: #fff;
+                width: 100%;
+            }
+            textarea {
+                resize: vertical;
+                min-height: 80px;
+            }
+            label.f {
+                display: block;
+                font-size: 12px;
+                color: var(--muted);
+                margin: 10px 0 4px;
+            }
+            .row {
+                display: flex;
+                gap: 6px;
+                align-items: center;
+            }
+            .grow {
+                flex: 1;
+                min-width: 0;
+            }
+            .muted {
+                color: var(--muted);
+            }
+            .small {
+                font-size: 12px;
+            }
+            .hidden {
+                display: none !important;
+            }
+
+            /* ---------- Layout ---------- */
+            #app {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+            header#top {
+                height: var(--header-h);
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 0 10px;
+                background: #1f2937;
+                color: #fff;
+                flex-shrink: 0;
+            }
+            header#top select {
+                width: auto;
+                max-width: 280px;
+                background: #374151;
+                color: #fff;
+                border-color: #4b5563;
+            }
+            header#top button {
+                background: #374151;
+                border-color: #4b5563;
+                color: #fff;
+            }
+            header#top button:hover {
+                background: #4b5563;
+            }
+            header#top .brand {
+                font-weight: 600;
+                letter-spacing: 0.2px;
+                white-space: nowrap;
+            }
+            header#top button {
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            header#top #btnPlans .ico {
+                display: none;
+            }
+            header#top .spacer {
+                flex: 1;
+            }
+            main {
+                flex: 1;
+                display: flex;
+                min-height: 0;
+                position: relative;
+            }
+            #sidebar {
+                width: var(--sidebar-w);
+                background: var(--panel);
+                border-right: 1px solid var(--border);
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+                flex-shrink: 0;
+            }
+            #sidebar .sb-head {
+                padding: 10px 12px;
+                border-bottom: 1px solid var(--border);
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            #sidebar .sb-head h2 {
+                margin: 0;
+                font-size: 14px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            #sidebar .sb-head h2 .count {
+                background: var(--bg);
+                border-radius: 10px;
+                padding: 1px 8px;
+                font-size: 12px;
+                color: var(--muted);
+                font-weight: normal;
+            }
+            #mlist {
+                flex: 1;
+                overflow: auto;
+                padding: 6px;
+            }
+            .mitem {
+                display: flex;
+                gap: 10px;
+                padding: 8px;
+                border-radius: 8px;
+                cursor: pointer;
+                border: 1px solid transparent;
+                align-items: flex-start;
+            }
+            .mitem:hover {
+                background: #f9fafb;
+            }
+            .mitem.sel {
+                background: var(--accent-bg);
+                border-color: #93c5fd;
+            }
+            .mitem.done {
+                opacity: 0.55;
+            }
+            .mitem .badge {
+                width: 26px;
+                height: 26px;
+                border-radius: 50%;
+                color: #fff;
+                font-weight: 700;
+                font-size: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                border: 2px solid #fff;
+                box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
+            }
+            .mitem .body {
+                flex: 1;
+                min-width: 0;
+            }
+            .mitem .title {
+                font-weight: 600;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .mitem .title.empty {
+                font-weight: normal;
+                color: var(--muted);
+                font-style: italic;
+            }
+            .mitem .sub {
+                font-size: 12px;
+                color: var(--muted);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .mitem .notes {
+                font-size: 12px;
+                color: #374151;
+                margin-top: 2px;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            .mitem input[type="checkbox"] {
+                margin: 4px 0 0;
+                width: 16px;
+                height: 16px;
+                flex-shrink: 0;
+            }
+            .empty-state {
+                padding: 30px 16px;
+                text-align: center;
+                color: var(--muted);
+                line-height: 1.5;
+            }
+
+            #stage {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                min-width: 0;
+                min-height: 0;
+                position: relative;
+            }
+            #plantabs {
+                display: flex;
+                gap: 4px;
+                padding: 6px 8px;
+                background: var(--panel);
+                border-bottom: 1px solid var(--border);
+                overflow-x: auto;
+                flex-shrink: 0;
+                scrollbar-width: thin;
+            }
+            #plantabs button {
+                white-space: nowrap;
+                border-radius: 16px;
+                padding: 4px 12px;
+            }
+            #viewport {
+                flex: 1;
+                position: relative;
+                overflow: hidden;
+                background: #d1d5db;
+                touch-action: none;
+                user-select: none;
+                -webkit-user-select: none;
+                cursor: grab;
+            }
+            #viewport.add {
+                cursor: crosshair;
+            }
+            #viewport.panning {
+                cursor: grabbing;
+            }
+            #world {
+                position: absolute;
+                left: 0;
+                top: 0;
+                transform-origin: 0 0;
+                will-change: transform;
+            }
+            #world img {
+                display: block;
+                pointer-events: none;
+                background: #fff;
+                box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+            }
+            #pins {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+            }
+            .pin {
+                position: absolute;
+                width: 28px;
+                height: 28px;
+                margin: -14px 0 0 -14px;
+                border-radius: 50%;
+                color: #fff;
+                font-weight: 700;
+                font-size: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 2px solid #fff;
+                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+                transform: scale(var(--inv, 1));
+                transform-origin: center;
+                cursor: pointer;
+                touch-action: none;
+            }
+            .pin::after {
+                content: "";
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                width: 4px;
+                height: 4px;
+                margin: -2px 0 0 -2px;
+                border-radius: 50%;
+            } /* ;background:#fff;opacity:.9} */
+            .pin.done {
+                opacity: 0.5;
+            }
+            .pin.sel {
+                box-shadow:
+                    0 0 0 4px rgba(37, 99, 235, 0.55),
+                    0 1px 4px rgba(0, 0, 0, 0.45);
+                z-index: 2;
+            }
+            .pin.dragging {
+                opacity: 0.8;
+                z-index: 3;
+            }
+            #toolbar {
+                position: absolute;
+                left: 10px;
+                bottom: 10px;
+                display: flex;
+                gap: 6px;
+                flex-wrap: wrap;
+                z-index: 5;
+            }
+            #toolbar button {
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            }
+            #hint {
+                position: absolute;
+                top: 8px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(31, 41, 55, 0.9);
+                color: #fff;
+                padding: 6px 12px;
+                border-radius: 16px;
+                font-size: 12px;
+                z-index: 5;
+                pointer-events: none;
+                white-space: nowrap;
+            }
+            #stage-empty {
+                position: absolute;
+                inset: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                color: #374151;
+                padding: 20px;
+                line-height: 1.6;
+                z-index: 4;
+                background: rgba(243, 244, 246, 0.85);
+            }
+            #fab {
+                display: none;
+            }
+
+            #editpanel {
+                position: absolute;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                width: var(--edit-w);
+                background: var(--panel);
+                border-left: 1px solid var(--border);
+                box-shadow: -4px 0 16px rgba(0, 0, 0, 0.12);
+                overflow: auto;
+                padding: 12px 14px;
+                z-index: 10;
+            }
+            #editpanel h3 {
+                margin: 0 0 4px;
+                font-size: 15px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            #editpanel .ep-badge {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                color: #fff;
+                font-weight: 700;
+                font-size: 13px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 2px solid #fff;
+                box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
+            }
+            .photo-strip { display: flex; flex-wrap: wrap; gap: 6px; }
+            .photo-strip img { width: 72px; height: 72px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); cursor: pointer; background: #f3f4f6; }
+            .photo-strip .ph-add { width: 72px; height: 72px; border: 1px dashed #9ca3af; border-radius: 6px; background: #fafafa; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 20px; padding: 0; }
+            .photo-strip .ph-add span { font-size: 10px; color: var(--muted); }
+            .mitem .ph-count { font-size: 11px; color: var(--muted); margin-left: 6px; }
+            .lightbox { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.92); z-index: 80; display: flex; flex-direction: column; color: #fff; }
+            .lightbox .lb-top { display: flex; align-items: center; gap: 8px; padding: 10px 12px; }
+            .lightbox .lb-top button { background: #374151; border-color: #4b5563; color: #fff; }
+            .lightbox .lb-top button.danger { color: #fca5a5; }
+            .lightbox .lb-img { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; position: relative; }
+            .lightbox .lb-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+            .lightbox .lb-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 64px; font-size: 32px; background: rgba(55, 65, 81, 0.7); border: none; color: #fff; border-radius: 8px; }
+            .lightbox .lb-prev { left: 8px; } .lightbox .lb-next { right: 8px; }
+            .lightbox .lb-nav:disabled { opacity: 0.25; }
+            #editpanel .ep-actions {
+                display: flex;
+                gap: 6px;
+                margin-top: 16px;
+                flex-wrap: wrap;
+            }
+            .check {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-top: 12px;
+                cursor: pointer;
+            }
+            .check input {
+                width: 18px;
+                height: 18px;
+            }
+
+            /* ---------- Modals ---------- */
+            .modal-bg {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.45);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 50;
+                padding: 12px;
+            }
+            .modal {
+                background: var(--panel);
+                border-radius: 12px;
+                width: 100%;
+                max-width: 560px;
+                max-height: 92vh;
+                display: flex;
+                flex-direction: column;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            }
+            .modal .m-head {
+                padding: 14px 16px;
+                border-bottom: 1px solid var(--border);
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .modal .m-head h2 {
+                margin: 0;
+                font-size: 16px;
+                flex: 1;
+            }
+            .modal .m-body {
+                padding: 14px 16px;
+                overflow: auto;
+            }
+            .modal .m-foot {
+                padding: 12px 16px;
+                border-top: 1px solid var(--border);
+                display: flex;
+                gap: 8px;
+                justify-content: flex-end;
+                flex-wrap: wrap;
+            }
+            .cat-row {
+                display: flex;
+                gap: 6px;
+                align-items: center;
+                margin-bottom: 6px;
+            }
+            .cat-row input[type="color"] {
+                width: 38px;
+                height: 34px;
+                padding: 2px;
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                background: #fff;
+                flex-shrink: 0;
+            }
+            .plan-pick {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+            .plan-pick label {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 6px;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                cursor: pointer;
+            }
+            .plan-pick img,
+            .lib-item img {
+                width: 64px;
+                height: 44px;
+                object-fit: contain;
+                background: #f3f4f6;
+                border-radius: 4px;
+                flex-shrink: 0;
+            }
+            .lib-item {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+                padding: 8px;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                margin-bottom: 8px;
+            }
+            .lib-item input[type="text"] {
+                flex: 1;
+            }
+            .dropzone {
+                border: 2px dashed #cbd5e1;
+                border-radius: 10px;
+                padding: 18px;
+                text-align: center;
+                color: var(--muted);
+                margin-bottom: 12px;
+                cursor: pointer;
+            }
+            .dropzone.over {
+                border-color: var(--accent);
+                background: var(--accent-bg);
+            }
+            .menu {
+                position: absolute;
+                background: #fff;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+                z-index: 60;
+                min-width: 220px;
+                padding: 4px;
+                color: var(--text);
+            }
+            .menu button {
+                display: block;
+                width: 100%;
+                text-align: left;
+                border: none;
+                border-radius: 6px;
+                padding: 8px 10px;
+                background: #fff;
+                color: var(--text);
+            }
+            .menu button:hover {
+                background: #f3f4f6;
+            }
+            .menu hr {
+                border: none;
+                border-top: 1px solid var(--border);
+                margin: 4px 0;
+            }
+            #toast {
+                position: fixed;
+                left: 50%;
+                bottom: 24px;
+                transform: translateX(-50%);
+                background: #111827;
+                color: #fff;
+                padding: 10px 16px;
+                border-radius: 8px;
+                z-index: 100;
+                font-size: 13px;
+                opacity: 0;
+                transition: opacity 0.2s;
+                pointer-events: none;
+                max-width: 90vw;
+            }
+            #toast.show {
+                opacity: 1;
+            }
+
+            /* ---------- Mobile ---------- */
+            @media (max-width: 820px) {
+                :root {
+                    --header-h: 48px;
+                }
+                header#top .brand {
+                    display: none;
+                }
+                header#top select {
+                    max-width: 40vw;
+                    min-width: 0;
+                }
+                header#top {
+                    gap: 6px;
+                    padding: 0 8px;
+                }
+                header#top #btnPlans .lbl {
+                    display: none;
+                }
+                header#top #btnPlans .ico {
+                    display: inline;
+                }
+                main {
+                    flex-direction: column;
+                }
+                #stage {
+                    flex: 1;
+                }
+                #sidebar {
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    width: auto;
+                    height: 44px;
+                    border-right: none;
+                    border-top: 1px solid var(--border);
+                    border-radius: 14px 14px 0 0;
+                    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.15);
+                    z-index: 20;
+                    transition: height 0.2s;
+                }
+                #sidebar.open {
+                    height: 62%;
+                }
+                #sidebar .sb-head {
+                    cursor: pointer;
+                    padding: 8px 12px;
+                }
+                #sidebar .sb-head h2::before {
+                    content: "";
+                    display: block;
+                    width: 36px;
+                    height: 4px;
+                    border-radius: 2px;
+                    background: #d1d5db;
+                    position: absolute;
+                    left: 50%;
+                    top: 4px;
+                    transform: translateX(-50%);
+                }
+                #sidebar .sb-head {
+                    position: relative;
+                }
+                #sidebar .sb-head .search {
+                    display: none;
+                }
+                #sidebar.open .sb-head .search {
+                    display: flex;
+                }
+                #toolbar {
+                    bottom: 54px;
+                }
+                #editpanel {
+                    position: absolute;
+                    inset: 0;
+                    width: auto;
+                    z-index: 30;
+                    border: none;
+                }
+                #fab {
+                    display: flex;
+                    position: absolute;
+                    right: 14px;
+                    bottom: 58px;
+                    width: 54px;
+                    height: 54px;
+                    border-radius: 50%;
+                    background: var(--accent);
+                    color: #fff;
+                    font-size: 28px;
+                    align-items: center;
+                    justify-content: center;
+                    border: none;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                    z-index: 21;
+                }
+                #fab.active {
+                    background: var(--danger);
+                }
+                #toolbar .desktop-only {
+                    display: none;
+                }
+                .pin {
+                    width: 32px;
+                    height: 32px;
+                    margin: -16px 0 0 -16px;
+                    font-size: 13px;
+                }
+            }
+
+            /* ---------- Print ---------- */
+            #printroot {
+                display: none;
+            }
+            @media print {
+                @page {
+                    margin: 12mm;
+                }
+                html,
+                body {
+                    overflow: visible;
+                    height: auto;
+                    background: #fff;
+                }
+                #app,
+                #toast,
+                .modal-bg,
+                .menu {
+                    display: none !important;
+                }
+                #printroot {
+                    display: block;
+                    font-size: 11pt;
+                    color: #000;
+                }
+                .p-page {
+                    page-break-after: always;
+                    break-after: page;
+                }
+                .p-page:last-child {
+                    page-break-after: auto;
+                    break-after: auto;
+                }
+                .p-head {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: baseline;
+                    border-bottom: 2px solid #000;
+                    padding-bottom: 4px;
+                    margin-bottom: 8px;
+                }
+                .p-head h1 {
+                    font-size: 16pt;
+                    margin: 0;
+                }
+                .p-head h2 {
+                    font-size: 12pt;
+                    margin: 0;
+                    font-weight: normal;
+                }
+                .p-desc {
+                    margin: 0 0 8px;
+                    font-size: 10pt;
+                    color: #333;
+                }
+                .p-plan {
+                    position: relative;
+                    width: 100%;
+                    margin-bottom: 10px;
+                }
+                .p-plan img {
+                    width: 100%;
+                    display: block;
+                    border: 1px solid #999;
+                }
+                .p-pin {
+                    position: absolute;
+                    width: 20px;
+                    height: 20px;
+                    margin: -10px 0 0 -10px;
+                    border-radius: 50%;
+                    color: #fff;
+                    font-weight: 700;
+                    font-size: 9pt;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border: 1.5px solid #fff;
+                    box-shadow: 0 0 0 1px #000;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                .p-pin.done {
+                    opacity: 0.45;
+                }
+                table.p-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    font-size: 10pt;
+                }
+                table.p-table th,
+                table.p-table td {
+                    border: 1px solid #999;
+                    padding: 4px 6px;
+                    text-align: left;
+                    vertical-align: top;
+                }
+                table.p-table th {
+                    background: #eee;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                table.p-table td.n {
+                    width: 34px;
+                    text-align: center;
+                    font-weight: 700;
+                }
+                table.p-table .dot {
+                    display: inline-block;
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 50%;
+                    margin-right: 5px;
+                    vertical-align: middle;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                table.p-table tr.done td {
+                    color: #777;
+                }
+                table.p-table td.notes {
+                    white-space: pre-wrap;
+                }
+                .p-legend {
+                    font-size: 9pt;
+                    margin: 0 0 8px;
+                    display: flex;
+                    gap: 14px;
+                    flex-wrap: wrap;
+                }
+                .p-photos-h { font-size: 11pt; margin: 10px 0 6px; page-break-after: avoid; break-after: avoid; }
+                .p-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+                .p-photos figure { margin: 0; page-break-inside: avoid; break-inside: avoid; }
+                .p-photos img { width: 100%; height: 48mm; object-fit: cover; border: 1px solid #999; }
+                .p-photos figcaption { font-size: 9pt; margin-top: 2px; }
+                .p-legend .dot {
+                    display: inline-block;
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 50%;
+                    margin-right: 4px;
+                    vertical-align: middle;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app">
+            <header id="top">
+                <span class="brand" data-i18n="appTitle">Floorplan Marker</span>
+                <select id="projectSelect" title="Project"></select>
+                <button id="btnProjectMenu" class="icon" title="Project">
+                    &#8942;
+                </button>
+                <span class="spacer"></span>
+                <button
+                    id="btnPlans"
+                    data-i18n-title="plans"
+                    title="Plattegronden"
+                >
+                    <span class="ico">&#9638;</span
+                    ><span class="lbl" data-i18n="plans">Plattegronden</span>
+                </button>
+                <button
+                    id="btnPrint"
+                    class="icon"
+                    data-i18n-title="print"
+                    title="Afdrukken"
+                >
+                    &#128438;
+                </button>
+                <button
+                    id="btnData"
+                    class="icon"
+                    data-i18n-title="importExport"
+                    title="Import / export"
+                >
+                    &#8645;
+                </button>
+                <button id="btnLang" class="icon" title="Language">EN</button>
+            </header>
+            <main>
+                <aside id="sidebar">
+                    <div class="sb-head" id="sbHead">
+                        <h2>
+                            <span data-i18n="markers">Markeringen</span>
+                            <span class="count" id="mcount">0</span>
+                            <span class="grow"></span
+                            ><span class="small muted" id="sbPlanName"></span>
+                        </h2>
+                        <div class="row search">
+                            <input
+                                type="search"
+                                id="filter"
+                                data-i18n-ph="filter"
+                                placeholder="Zoeken…"
+                            />
+                            <label
+                                class="row small muted"
+                                style="white-space: nowrap"
+                                ><input type="checkbox" id="hideDone" />
+                                <span data-i18n="hideDone"
+                                    >Verberg gereed</span
+                                ></label
+                            >
+                        </div>
+                    </div>
+                    <div id="mlist"></div>
+                </aside>
+                <section id="stage">
+                    <div id="plantabs"></div>
+                    <div id="viewport">
+                        <div id="world">
+                            <img id="planimg" alt="" />
+                            <div id="pins"></div>
+                        </div>
+                        <div id="hint" class="hidden"></div>
+                    </div>
+                    <div id="stage-empty" class="hidden"></div>
+                    <div id="toolbar">
+                        <button id="btnNav" class="active" data-i18n="navMode">
+                            Navigeren
+                        </button>
+                        <button
+                            id="btnAdd"
+                            class="desktop-only"
+                            data-i18n="addMode"
+                        >
+                            + Markering
+                        </button>
+                        <button id="btnFit" data-i18n="fit">Passend</button>
+                        <button id="btnZoomIn" class="icon desktop-only">
+                            +
+                        </button>
+                        <button id="btnZoomOut" class="icon desktop-only">
+                            &minus;
+                        </button>
+                    </div>
+                    <button id="fab" title="Add">+</button>
+                </section>
+                <aside id="editpanel" class="hidden"></aside>
+            </main>
+        </div>
+        <div id="modals"></div>
+        <div id="printroot"></div>
+        <div id="toast"></div>
+
+        <script>
+            /* ============================================================
+   i18n
+   ============================================================ */
+            const I18N = {
+                nl: {
+                    appTitle: "Plattegrond markering",
+                    plans: "Plattegronden",
+                    print: "Afdrukken",
+                    importExport: "Import / export",
+                    markers: "Markeringen",
+                    filter: "Zoeken…",
+                    hideDone: "Verberg gereed",
+                    navMode: "Navigeren",
+                    addMode: "+ Markering",
+                    fit: "Passend",
+                    addHint:
+                        "Tik op de plattegrond om een markering te plaatsen",
+                    noProject: "Nog geen project.",
+                    createProject: "Maak een project aan",
+                    noProjectHelp:
+                        "Een project is een reden om te markeren (bijv. een audit of een risicoinventarisatie). Voeg daarna een of meer plattegronden toe.",
+                    noPlansInProject:
+                        "Dit project heeft nog geen plattegronden.",
+                    pickPlans: "Plattegronden kiezen",
+                    noMarkers: "Nog geen markeringen op deze plattegrond.",
+                    noMarkersHelp:
+                        "Kies “+ Markering” en tik op de plattegrond.",
+                    noResults: "Geen markeringen gevonden.",
+                    newProject: "Nieuw project",
+                    editProject: "Project bewerken",
+                    deleteProject: "Project verwijderen",
+                    renumber: "Hernummeren",
+                    duplicateProject: "Project dupliceren",
+                    photos: "Foto's", addPhoto: "Kies foto", takePhoto: "Camera", deletePhoto: "Foto verwijderen", confirmDeletePhoto: "Deze foto verwijderen?", photosOfPlan: "Foto's",
+                    name: "Naam",
+                    description: "Omschrijving",
+                    categories: "Categorieën",
+                    addCategory: "+ Categorie",
+                    categoryPh: "Categorie naam",
+                    projectPlans: "Plattegronden in dit project",
+                    noPlansYet:
+                        "Nog geen plattegronden in de bibliotheek. Voeg ze toe via “Plattegronden”.",
+                    save: "Opslaan",
+                    cancel: "Annuleren",
+                    close: "Sluiten",
+                    delete: "Verwijderen",
+                    title: "Titel",
+                    category: "Categorie",
+                    none: "— geen —",
+                    notes: "Notities",
+                    done: "Gereed",
+                    marker: "Markering",
+                    untitled: "(geen titel)",
+                    confirmDeleteMarker: "Markering {n} verwijderen?",
+                    confirmDeleteProject:
+                        "Project “{name}” en alle markeringen verwijderen?",
+                    confirmDeletePlan: "Plattegrond “{name}” verwijderen?",
+                    planInUse:
+                        "Deze plattegrond wordt gebruikt in: {list}. De markeringen daarop gaan verloren.",
+                    confirmRenumber:
+                        "Markeringen op deze plattegrond opnieuw nummeren (1, 2, 3…) in volgorde van aanmaak? Bestaande verwijzingen kloppen dan niet meer.",
+                    library: "Plattegronden bibliotheek",
+                    dropHint:
+                        "Klik of sleep hier afbeeldingen (PNG/JPG) of PDF's",
+                    planName: "Naam",
+                    usedIn: "Gebruikt in",
+                    notUsed: "Niet in gebruik",
+                    processing: "Bezig met verwerken…",
+                    pdfPage: "pagina",
+                    addedPlans: "{n} plattegrond(en) toegevoegd",
+                    storage: "Opslag",
+                    exportProject: "Exporteer huidig project (JSON)",
+                    exportAll: "Exporteer alles (JSON)",
+                    exportCsv: "Exporteer markeringen (CSV)",
+                    importJson: "Importeer JSON",
+                    importHelp:
+                        "Bij importeren worden projecten en plattegronden met hetzelfde ID overschreven; de rest wordt toegevoegd.",
+                    imported:
+                        "Geïmporteerd: {p} project(en), {f} plattegrond(en)",
+                    importError: "Import mislukt: ongeldig bestand",
+                    nothingToExport: "Niets om te exporteren",
+                    nr: "Nr",
+                    status: "Status",
+                    open: "Open",
+                    plan: "Plattegrond",
+                    date: "Datum",
+                    printNoPlans: "Geen plattegronden om af te drukken",
+                    page: "Pagina",
+                    selectProject: "— kies project —",
+                    untitledProject: "Naamloos project",
+                    saved: "Opgeslagen",
+                    legend: "Legenda",
+                    showOnPlan: "Toon op plattegrond",
+                    deleteMarker: "Markering verwijderen",
+                    position: "Positie",
+                    dragHint: "Sleep de speld om te verplaatsen",
+                    all: "Alle",
+                    categoryFilter: "Categorie",
+                },
+                en: {
+                    appTitle: "Floorplan Marker",
+                    plans: "Floor plans",
+                    print: "Print",
+                    importExport: "Import / export",
+                    markers: "Markers",
+                    filter: "Search…",
+                    hideDone: "Hide done",
+                    navMode: "Navigate",
+                    addMode: "+ Marker",
+                    fit: "Fit",
+                    addHint: "Tap the floor plan to place a marker",
+                    noProject: "No project yet.",
+                    createProject: "Create a project",
+                    noProjectHelp:
+                        "A project is a reason for marking (e.g. an audit or a risk inventory). Then add one or more floor plans.",
+                    noPlansInProject: "This project has no floor plans yet.",
+                    pickPlans: "Choose floor plans",
+                    noMarkers: "No markers on this floor plan yet.",
+                    noMarkersHelp: "Choose “+ Marker” and tap the floor plan.",
+                    noResults: "No markers found.",
+                    newProject: "New project",
+                    editProject: "Edit project",
+                    deleteProject: "Delete project",
+                    renumber: "Renumber",
+                    duplicateProject: "Duplicate project",
+                    photos: "Photos", addPhoto: "Choose photo", takePhoto: "Camera", deletePhoto: "Delete photo", confirmDeletePhoto: "Delete this photo?", photosOfPlan: "Photos",
+                    name: "Name",
+                    description: "Description",
+                    categories: "Categories",
+                    addCategory: "+ Category",
+                    categoryPh: "Category name",
+                    projectPlans: "Floor plans in this project",
+                    noPlansYet:
+                        "No floor plans in the library yet. Add them via “Floor plans”.",
+                    save: "Save",
+                    cancel: "Cancel",
+                    close: "Close",
+                    delete: "Delete",
+                    title: "Title",
+                    category: "Category",
+                    none: "— none —",
+                    notes: "Notes",
+                    done: "Done",
+                    marker: "Marker",
+                    untitled: "(untitled)",
+                    confirmDeleteMarker: "Delete marker {n}?",
+                    confirmDeleteProject:
+                        "Delete project “{name}” and all its markers?",
+                    confirmDeletePlan: "Delete floor plan “{name}”?",
+                    planInUse:
+                        "This floor plan is used in: {list}. Its markers there will be lost.",
+                    confirmRenumber:
+                        "Renumber markers on this floor plan (1, 2, 3…) in creation order? Existing references will no longer match.",
+                    library: "Floor plan library",
+                    dropHint: "Click or drop images (PNG/JPG) or PDFs here",
+                    planName: "Name",
+                    usedIn: "Used in",
+                    notUsed: "Not in use",
+                    processing: "Processing…",
+                    pdfPage: "page",
+                    addedPlans: "{n} floor plan(s) added",
+                    storage: "Storage",
+                    exportProject: "Export current project (JSON)",
+                    exportAll: "Export everything (JSON)",
+                    exportCsv: "Export markers (CSV)",
+                    importJson: "Import JSON",
+                    importHelp:
+                        "On import, projects and floor plans with the same ID are overwritten; everything else is added.",
+                    imported: "Imported: {p} project(s), {f} floor plan(s)",
+                    importError: "Import failed: invalid file",
+                    nothingToExport: "Nothing to export",
+                    nr: "No",
+                    status: "Status",
+                    open: "Open",
+                    plan: "Floor plan",
+                    date: "Date",
+                    printNoPlans: "No floor plans to print",
+                    page: "Page",
+                    selectProject: "— select project —",
+                    untitledProject: "Untitled project",
+                    saved: "Saved",
+                    legend: "Legend",
+                    showOnPlan: "Show on plan",
+                    deleteMarker: "Delete marker",
+                    position: "Position",
+                    dragHint: "Drag the pin to move it",
+                    all: "All",
+                    categoryFilter: "Category",
+                },
+            };
+            let lang = localStorage.getItem("fpm-lang") || "nl";
+            const t = (k, vars) => {
+                let s = (I18N[lang] && I18N[lang][k]) || I18N.en[k] || k;
+                if (vars)
+                    for (const v in vars) s = s.replace("{" + v + "}", vars[v]);
+                return s;
+            };
+            function applyI18n() {
+                document.documentElement.lang = lang;
+                document
+                    .querySelectorAll("[data-i18n]")
+                    .forEach((el) => (el.textContent = t(el.dataset.i18n)));
+                document
+                    .querySelectorAll("[data-i18n-ph]")
+                    .forEach((el) => (el.placeholder = t(el.dataset.i18nPh)));
+                document
+                    .querySelectorAll("[data-i18n-title]")
+                    .forEach((el) => (el.title = t(el.dataset.i18nTitle)));
+                document.getElementById("btnLang").textContent =
+                    lang === "nl" ? "EN" : "NL";
+                document.title = t("appTitle");
+            }
+
+            /* ============================================================
+   IndexedDB
+   ============================================================ */
+            const DB = {
+                db: null,
+                open() {
+                    return new Promise((res, rej) => {
+                        const r = indexedDB.open("floorplan-marker", 2);
+                        r.onupgradeneeded = (e) => {
+                            const d = e.target.result;
+                            const names = d.objectStoreNames;
+                            if (!names.contains("plans")) d.createObjectStore("plans", { keyPath: "id" });
+                            if (!names.contains("projects")) d.createObjectStore("projects", { keyPath: "id" });
+                            if (!names.contains("meta")) d.createObjectStore("meta", { keyPath: "key" });
+                            if (!names.contains("photos")) {
+                                const ps = d.createObjectStore("photos", { keyPath: "id" });
+                                ps.createIndex("markerId", "markerId", { unique: false });
+                                ps.createIndex("projectId", "projectId", { unique: false });
+                            }
+                        };
+                        r.onsuccess = (e) => {
+                            DB.db = e.target.result;
+                            res();
+                        };
+                        r.onerror = (e) => rej(e.target.error);
+                    });
+                },
+                tx(store, mode, fn) {
+                    return new Promise((res, rej) => {
+                        const tx = DB.db.transaction(store, mode);
+                        const req = fn(tx.objectStore(store));
+                        tx.oncomplete = () => res(req && req.result);
+                        tx.onerror = (e) => rej(e.target.error);
+                        tx.onabort = (e) => rej(e.target.error);
+                    });
+                },
+                getAll(s) {
+                    return DB.tx(s, "readonly", (o) => o.getAll());
+                },
+                put(s, v) {
+                    return DB.tx(s, "readwrite", (o) => o.put(v));
+                },
+                del(s, k) {
+                    return DB.tx(s, "readwrite", (o) => o.delete(k));
+                },
+                byIndex(s, idx, key) {
+                    return DB.tx(s, "readonly", (o) => o.index(idx).getAll(key));
+                },
+            };
+
+            /* ============================================================
+   Photos (stored per marker in the "photos" store, WebP)
+   ============================================================ */
+            const PHOTO_MAX = 1600, PHOTO_Q = 0.8;
+            const photoUrlCache = new Map();
+            const photoUrl = (ph) => { if (!photoUrlCache.has(ph.id)) photoUrlCache.set(ph.id, URL.createObjectURL(ph.image)); return photoUrlCache.get(ph.id); };
+            let photosByMarker = new Map(); // markerId -> [photo]
+            async function loadPhotos(projectId) {
+                photosByMarker = new Map();
+                if (!projectId) return;
+                for (const ph of await DB.byIndex("photos", "projectId", projectId)) {
+                    if (!photosByMarker.has(ph.markerId)) photosByMarker.set(ph.markerId, []);
+                    photosByMarker.get(ph.markerId).push(ph);
+                }
+                photosByMarker.forEach((arr) => arr.sort((a, b) => a.createdAt - b.createdAt));
+            }
+            const markerPhotos = (id) => photosByMarker.get(id) || [];
+            async function decodeImage(file) {
+                if (window.createImageBitmap) {
+                    try { return await createImageBitmap(file, { imageOrientation: "from-image" }); } catch (e) { /* fall through */ }
+                }
+                const url = URL.createObjectURL(file);
+                try { return await loadImage(url); } finally { URL.revokeObjectURL(url); }
+            }
+            async function fileToWebp(file) {
+                const im = await decodeImage(file);
+                const iw = im.naturalWidth || im.width, ih = im.naturalHeight || im.height;
+                const scale = Math.min(1, PHOTO_MAX / Math.max(iw, ih));
+                const w = Math.round(iw * scale), h = Math.round(ih * scale);
+                const c = document.createElement("canvas"); c.width = w; c.height = h;
+                c.getContext("2d").drawImage(im, 0, 0, w, h);
+                if (im.close) im.close();
+                let blob = await canvasToBlob(c, "image/webp", PHOTO_Q);
+                if (!blob || blob.type !== "image/webp") blob = await canvasToBlob(c, "image/jpeg", 0.82); // browsers without WebP encoding
+                return { blob, width: w, height: h };
+            }
+            async function addPhotos(marker, files) {
+                const proj = curProject(); if (!proj) return 0;
+                const list = Array.from(files).filter((f) => /^image\//.test(f.type));
+                if (!list.length) return 0;
+                toast(t("processing"));
+                let n = 0;
+                for (const f of list) {
+                    try {
+                        const p = await fileToWebp(f);
+                        const ph = { id: uid(), markerId: marker.id, projectId: proj.id, image: p.blob, width: p.width, height: p.height, createdAt: Date.now() };
+                        await DB.put("photos", ph);
+                        if (!photosByMarker.has(marker.id)) photosByMarker.set(marker.id, []);
+                        photosByMarker.get(marker.id).push(ph); n++;
+                    } catch (e) { console.error(e); toast("Error: " + (e.message || e)); }
+                }
+                return n;
+            }
+            async function deletePhoto(ph) {
+                await DB.del("photos", ph.id);
+                const arr = photosByMarker.get(ph.markerId); if (arr) photosByMarker.set(ph.markerId, arr.filter((x) => x.id !== ph.id));
+                if (photoUrlCache.has(ph.id)) { URL.revokeObjectURL(photoUrlCache.get(ph.id)); photoUrlCache.delete(ph.id); }
+            }
+            async function deletePhotosOfMarkers(markerIds) {
+                for (const id of markerIds) for (const ph of await DB.byIndex("photos", "markerId", id)) await deletePhoto(ph);
+            }
+            async function deletePhotosOfProject(projectId) {
+                for (const ph of await DB.byIndex("photos", "projectId", projectId)) await deletePhoto(ph);
+            }
+            function openLightbox(marker, index) {
+                const photos = markerPhotos(marker.id); if (!photos.length) return;
+                let i = index;
+                const bg = document.createElement("div"); bg.className = "lightbox";
+                bg.innerHTML = `<div class="lb-top"><span class="lb-title"></span><span class="grow"></span><button class="icon lb-del danger">${esc(t("deletePhoto"))}</button><button class="icon lb-close">✕</button></div><div class="lb-img"><button class="lb-nav lb-prev">‹</button><img><button class="lb-nav lb-next">›</button></div>`;
+                document.body.appendChild(bg);
+                const show = () => { const ph = photos[i]; bg.querySelector("img").src = photoUrl(ph); bg.querySelector(".lb-title").textContent = `${t("marker")} ${marker.n} · ${i + 1}/${photos.length}`; bg.querySelector(".lb-prev").disabled = i === 0; bg.querySelector(".lb-next").disabled = i === photos.length - 1; };
+                const close = () => { bg.remove(); document.removeEventListener("keydown", key); };
+                const key = (e) => { if (e.key === "Escape") close(); if (e.key === "ArrowLeft" && i > 0) { i--; show(); } if (e.key === "ArrowRight" && i < photos.length - 1) { i++; show(); } };
+                document.addEventListener("keydown", key);
+                bg.querySelector(".lb-close").onclick = close;
+                bg.querySelector(".lb-prev").onclick = () => { if (i > 0) { i--; show(); } };
+                bg.querySelector(".lb-next").onclick = () => { if (i < photos.length - 1) { i++; show(); } };
+                bg.querySelector(".lb-del").onclick = async () => {
+                    if (!confirm(t("confirmDeletePhoto"))) return;
+                    await deletePhoto(photos[i]); photos.splice(i, 1);
+                    renderPhotoStrip(marker); renderList();
+                    if (!photos.length) return close();
+                    i = Math.min(i, photos.length - 1); show();
+                };
+                bg.addEventListener("click", (e) => { if (e.target === bg || e.target.classList.contains("lb-img")) close(); });
+                show();
+            }
+            function renderPhotoStrip(marker) {
+                const el = $("epPhotos"); if (!el) return;
+                const photos = markerPhotos(marker.id);
+                el.innerHTML = photos.map((ph, i) => `<img src="${photoUrl(ph)}" data-i="${i}" alt="">`).join("") +
+                    `<button class="ph-add" id="epAddCam" title="${esc(t("takePhoto"))}">📷<span>${esc(t("takePhoto"))}</span></button>` +
+                    `<button class="ph-add" id="epAddPhoto" title="${esc(t("addPhoto"))}">🖼<span>${esc(t("addPhoto"))}</span></button>`;
+                el.querySelectorAll("img").forEach((im) => (im.onclick = () => openLightbox(marker, +im.dataset.i)));
+                $("epAddCam").onclick = () => $("epPhotoCam").click();
+                $("epAddPhoto").onclick = () => $("epPhotoFile").click();
+            }
+
+            /* ============================================================
+   State
+   ============================================================ */
+            const S = {
+                plans: [],
+                projects: [],
+                projectId: null,
+                planId: null,
+                mode: "nav",
+                selId: null,
+                filter: "",
+                hideDone: false,
+            };
+            const urlCache = new Map();
+            const uid = () =>
+                crypto.randomUUID
+                    ? crypto.randomUUID()
+                    : "id-" +
+                      Date.now().toString(36) +
+                      Math.random().toString(36).slice(2, 10);
+            const PALETTE = [
+                "#dc2626",
+                "#2563eb",
+                "#16a34a",
+                "#f59e0b",
+                "#7c3aed",
+                "#0891b2",
+                "#db2777",
+                "#65a30d",
+                "#ea580c",
+                "#4b5563",
+            ];
+            const DEFAULT_COLOR = "#374151";
+            const $ = (id) => document.getElementById(id);
+            const esc = (s) =>
+                String(s ?? "").replace(
+                    /[&<>"']/g,
+                    (c) =>
+                        ({
+                            "&": "&amp;",
+                            "<": "&lt;",
+                            ">": "&gt;",
+                            '"': "&quot;",
+                            "'": "&#39;",
+                        })[c],
+                );
+
+            const curProject = () =>
+                S.projects.find((p) => p.id === S.projectId) || null;
+            const curPlan = () =>
+                S.plans.find((p) => p.id === S.planId) || null;
+            const planUrl = (plan) => {
+                if (!plan) return "";
+                if (!urlCache.has(plan.id))
+                    urlCache.set(plan.id, URL.createObjectURL(plan.image));
+                return urlCache.get(plan.id);
+            };
+            const catOf = (proj, id) =>
+                ((proj && proj.categories) || []).find((c) => c.id === id) ||
+                null;
+            const catColor = (proj, id) => {
+                const c = catOf(proj, id);
+                return c ? c.color : DEFAULT_COLOR;
+            };
+            const planMarkers = () => {
+                const p = curProject();
+                return p ? p.markers.filter((m) => m.planId === S.planId) : [];
+            };
+
+            async function saveProject(p) {
+                p.updatedAt = Date.now();
+                await DB.put("projects", p);
+            }
+            async function saveMeta() {
+                await DB.put("meta", {
+                    key: "state",
+                    projectId: S.projectId,
+                    planId: S.planId,
+                });
+            }
+
+            function toast(msg) {
+                const el = $("toast");
+                el.textContent = msg;
+                el.classList.add("show");
+                clearTimeout(el._t);
+                el._t = setTimeout(() => el.classList.remove("show"), 2200);
+            }
+
+            /* ============================================================
+   Image processing
+   ============================================================ */
+            const MAX_DIM = 2500;
+            function loadImage(src) {
+                return new Promise((res, rej) => {
+                    const im = new Image();
+                    im.onload = () => res(im);
+                    im.onerror = rej;
+                    im.src = src;
+                });
+            }
+            function canvasToBlob(c, type, q) {
+                return new Promise((res) => c.toBlob(res, type, q));
+            }
+            async function fileToPlanBlob(file) {
+                const url = URL.createObjectURL(file);
+                try {
+                    const im = await loadImage(url);
+                    const scale = Math.min(
+                        1,
+                        MAX_DIM / Math.max(im.naturalWidth, im.naturalHeight),
+                    );
+                    const w = Math.round(im.naturalWidth * scale),
+                        h = Math.round(im.naturalHeight * scale);
+                    if (
+                        scale === 1 &&
+                        (file.type === "image/png" ||
+                            file.type === "image/jpeg")
+                    )
+                        return { blob: file, width: w, height: h };
+                    const c = document.createElement("canvas");
+                    c.width = w;
+                    c.height = h;
+                    const ctx = c.getContext("2d");
+                    ctx.fillStyle = "#fff";
+                    ctx.fillRect(0, 0, w, h);
+                    ctx.drawImage(im, 0, 0, w, h);
+                    const png =
+                        file.type === "image/png" ||
+                        file.type === "image/gif" ||
+                        file.type === "image/svg+xml";
+                    const blob = await canvasToBlob(
+                        c,
+                        png ? "image/png" : "image/jpeg",
+                        0.9,
+                    );
+                    return { blob, width: w, height: h };
+                } finally {
+                    URL.revokeObjectURL(url);
+                }
+            }
+            let pdfjsPromise = null;
+            function loadPdfJs() {
+                if (!pdfjsPromise)
+                    pdfjsPromise = new Promise((res, rej) => {
+                        const s = document.createElement("script");
+                        s.src =
+                            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+                        s.onload = () => {
+                            window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+                                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+                            res(window.pdfjsLib);
+                        };
+                        s.onerror = () =>
+                            rej(
+                                new Error(
+                                    "pdf.js could not be loaded (offline?)",
+                                ),
+                            );
+                        document.head.appendChild(s);
+                    });
+                return pdfjsPromise;
+            }
+            async function pdfToPlans(file) {
+                const pdfjs = await loadPdfJs();
+                const pdf = await pdfjs.getDocument({
+                    data: await file.arrayBuffer(),
+                }).promise;
+                const out = [],
+                    base = file.name.replace(/\.pdf$/i, "");
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const v1 = page.getViewport({ scale: 1 });
+                    const scale = MAX_DIM / Math.max(v1.width, v1.height);
+                    const vp = page.getViewport({ scale });
+                    const c = document.createElement("canvas");
+                    c.width = Math.round(vp.width);
+                    c.height = Math.round(vp.height);
+                    const ctx = c.getContext("2d");
+                    ctx.fillStyle = "#fff";
+                    ctx.fillRect(0, 0, c.width, c.height);
+                    await page.render({ canvasContext: ctx, viewport: vp })
+                        .promise;
+                    const blob = await canvasToBlob(c, "image/png");
+                    out.push({
+                        name:
+                            pdf.numPages > 1
+                                ? `${base} – ${t("pdfPage")} ${i}`
+                                : base,
+                        blob,
+                        width: c.width,
+                        height: c.height,
+                    });
+                }
+                return out;
+            }
+            async function addPlanFiles(files) {
+                const list = Array.from(files).filter(
+                    (f) =>
+                        /^image\//.test(f.type) || f.type === "application/pdf",
+                );
+                if (!list.length) return 0;
+                toast(t("processing"));
+                let n = 0;
+                for (const f of list) {
+                    try {
+                        if (f.type === "application/pdf") {
+                            for (const p of await pdfToPlans(f)) {
+                                await DB.put("plans", {
+                                    id: uid(),
+                                    name: p.name,
+                                    image: p.blob,
+                                    width: p.width,
+                                    height: p.height,
+                                    createdAt: Date.now(),
+                                });
+                                n++;
+                            }
+                        } else {
+                            const p = await fileToPlanBlob(f);
+                            await DB.put("plans", {
+                                id: uid(),
+                                name: f.name.replace(/\.[^.]+$/, ""),
+                                image: p.blob,
+                                width: p.width,
+                                height: p.height,
+                                createdAt: Date.now(),
+                            });
+                            n++;
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        toast("Error: " + (e.message || e));
+                    }
+                }
+                S.plans = await DB.getAll("plans");
+                toast(t("addedPlans", { n }));
+                return n;
+            }
+
+            /* ============================================================
+   Viewport (pan / zoom)
+   ============================================================ */
+            const V = { s: 1, tx: 0, ty: 0 };
+            const vp = $("viewport"),
+                world = $("world"),
+                img = $("planimg"),
+                pinsEl = $("pins");
+            function applyView() {
+                world.style.transform = `translate(${V.tx}px,${V.ty}px) scale(${V.s})`;
+                world.style.setProperty("--inv", 1 / V.s);
+            }
+            function fitView() {
+                const plan = curPlan();
+                if (!plan) return;
+                const r = vp.getBoundingClientRect();
+                const s =
+                    Math.min(r.width / plan.width, r.height / plan.height) *
+                    0.94;
+                V.s = s;
+                V.tx = (r.width - plan.width * s) / 2;
+                V.ty = (r.height - plan.height * s) / 2;
+                applyView();
+            }
+            function zoomAt(factor, cx, cy) {
+                const ns = Math.min(Math.max(V.s * factor, 0.02), 20);
+                const k = ns / V.s;
+                V.tx = cx - (cx - V.tx) * k;
+                V.ty = cy - (cy - V.ty) * k;
+                V.s = ns;
+                applyView();
+            }
+            function screenToRel(clientX, clientY) {
+                const r = vp.getBoundingClientRect(),
+                    plan = curPlan();
+                const wx = (clientX - r.left - V.tx) / V.s,
+                    wy = (clientY - r.top - V.ty) / V.s;
+                return {
+                    x: Math.min(1, Math.max(0, wx / plan.width)),
+                    y: Math.min(1, Math.max(0, wy / plan.height)),
+                };
+            }
+            function centerOn(m) {
+                const plan = curPlan();
+                if (!plan) return;
+                const r = vp.getBoundingClientRect();
+                V.tx = r.width / 2 - m.x * plan.width * V.s;
+                V.ty = r.height / 2 - m.y * plan.height * V.s;
+                applyView();
+            }
+            vp.addEventListener(
+                "wheel",
+                (e) => {
+                    e.preventDefault();
+                    const r = vp.getBoundingClientRect();
+                    zoomAt(
+                        e.deltaY < 0 ? 1.15 : 1 / 1.15,
+                        e.clientX - r.left,
+                        e.clientY - r.top,
+                    );
+                },
+                { passive: false },
+            );
+
+            const ptrs = new Map();
+            let gesture = null;
+            vp.addEventListener("pointerdown", (e) => {
+                if (
+                    e.target.closest(".pin") ||
+                    e.target.closest("#toolbar") ||
+                    !curPlan()
+                )
+                    return;
+                vp.setPointerCapture(e.pointerId);
+                ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+                if (ptrs.size === 1)
+                    gesture = {
+                        type: "pan",
+                        sx: e.clientX,
+                        sy: e.clientY,
+                        tx: V.tx,
+                        ty: V.ty,
+                        moved: false,
+                    };
+                else if (ptrs.size === 2) {
+                    const [a, b] = [...ptrs.values()];
+                    gesture = {
+                        type: "pinch",
+                        d: Math.hypot(a.x - b.x, a.y - b.y),
+                        s: V.s,
+                        tx: V.tx,
+                        ty: V.ty,
+                        mx: (a.x + b.x) / 2,
+                        my: (a.y + b.y) / 2,
+                        moved: true,
+                    };
+                }
+            });
+            vp.addEventListener("pointermove", (e) => {
+                if (!ptrs.has(e.pointerId)) return;
+                ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+                if (!gesture) return;
+                if (gesture.type === "pan" && ptrs.size === 1) {
+                    const dx = e.clientX - gesture.sx,
+                        dy = e.clientY - gesture.sy;
+                    if (Math.hypot(dx, dy) > 4) {
+                        gesture.moved = true;
+                        vp.classList.add("panning");
+                    }
+                    if (gesture.moved) {
+                        V.tx = gesture.tx + dx;
+                        V.ty = gesture.ty + dy;
+                        applyView();
+                    }
+                } else if (gesture.type === "pinch" && ptrs.size === 2) {
+                    const [a, b] = [...ptrs.values()];
+                    const d = Math.hypot(a.x - b.x, a.y - b.y);
+                    const mx = (a.x + b.x) / 2,
+                        my = (a.y + b.y) / 2,
+                        r = vp.getBoundingClientRect();
+                    const k =
+                        Math.min(
+                            Math.max((gesture.s * d) / gesture.d, 0.02),
+                            20,
+                        ) / gesture.s;
+                    const cx = gesture.mx - r.left,
+                        cy = gesture.my - r.top;
+                    V.s = gesture.s * k;
+                    V.tx = cx - (cx - gesture.tx) * k + (mx - gesture.mx);
+                    V.ty = cy - (cy - gesture.ty) * k + (my - gesture.my);
+                    applyView();
+                }
+            });
+            function endPtr(e) {
+                if (!ptrs.has(e.pointerId)) return;
+                ptrs.delete(e.pointerId);
+                const g = gesture;
+                if (ptrs.size === 0) {
+                    vp.classList.remove("panning");
+                    gesture = null;
+                    if (
+                        g &&
+                        g.type === "pan" &&
+                        !g.moved &&
+                        e.type === "pointerup"
+                    ) {
+                        if (S.mode === "add") addMarkerAt(e.clientX, e.clientY);
+                        else select(null);
+                    }
+                } else if (ptrs.size === 1) {
+                    const p = [...ptrs.values()][0];
+                    gesture = {
+                        type: "pan",
+                        sx: p.x,
+                        sy: p.y,
+                        tx: V.tx,
+                        ty: V.ty,
+                        moved: true,
+                    };
+                }
+            }
+            vp.addEventListener("pointerup", endPtr);
+            vp.addEventListener("pointercancel", endPtr);
+            window.addEventListener("resize", () => {
+                if (curPlan()) fitView();
+            });
+
+            /* ============================================================
+   Markers
+   ============================================================ */
+            async function addMarkerAt(clientX, clientY) {
+                const proj = curProject();
+                if (!proj || !curPlan()) return;
+                const { x, y } = screenToRel(clientX, clientY);
+                const n =
+                    planMarkers().reduce((mx, m) => Math.max(mx, m.n), 0) + 1;
+                const m = {
+                    id: uid(),
+                    planId: S.planId,
+                    n,
+                    x,
+                    y,
+                    title: "",
+                    categoryId: proj.lastCategoryId || null,
+                    notes: "",
+                    done: false,
+                    createdAt: Date.now(),
+                };
+                proj.markers.push(m);
+                await saveProject(proj);
+                S.selId = m.id;
+                renderList();
+                renderPins();
+                renderEdit(true);
+            }
+            function select(id, opts = {}) {
+                S.selId = id;
+                document
+                    .querySelectorAll(".pin")
+                    .forEach((el) =>
+                        el.classList.toggle("sel", el.dataset.id === id),
+                    );
+                document
+                    .querySelectorAll(".mitem")
+                    .forEach((el) =>
+                        el.classList.toggle("sel", el.dataset.id === id),
+                    );
+                const li = document.querySelector(`.mitem[data-id="${id}"]`);
+                if (li && !opts.noScroll)
+                    li.scrollIntoView({ block: "nearest" });
+                renderEdit(opts.focus);
+            }
+            async function deleteMarker(id) {
+                const proj = curProject();
+                const m = proj.markers.find((x) => x.id === id);
+                if (!m) return;
+                if (!confirm(t("confirmDeleteMarker", { n: m.n }))) return;
+                proj.markers = proj.markers.filter((x) => x.id !== id);
+                await saveProject(proj);
+                await deletePhotosOfMarkers([id]);
+                if (S.selId === id) S.selId = null;
+                renderList();
+                renderPins();
+                renderEdit();
+            }
+            let saveTimer = null;
+            function scheduleSave() {
+                clearTimeout(saveTimer);
+                saveTimer = setTimeout(async () => {
+                    const p = curProject();
+                    if (p) await saveProject(p);
+                }, 300);
+            }
+
+            /* ---------- pin drag ---------- */
+            function bindPinDrag(el, m) {
+                let drag = null;
+                el.addEventListener("pointerdown", (e) => {
+                    e.stopPropagation();
+                    el.setPointerCapture(e.pointerId);
+                    drag = {
+                        sx: e.clientX,
+                        sy: e.clientY,
+                        moved: false,
+                        ox: m.x,
+                        oy: m.y,
+                    };
+                });
+                el.addEventListener("pointermove", (e) => {
+                    if (!drag) return;
+                    if (
+                        !drag.moved &&
+                        Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 6
+                    ) {
+                        drag.moved = true;
+                        el.classList.add("dragging");
+                    }
+                    if (drag.moved) {
+                        const r = screenToRel(e.clientX, e.clientY);
+                        m.x = r.x;
+                        m.y = r.y;
+                        el.style.left = m.x * 100 + "%";
+                        el.style.top = m.y * 100 + "%";
+                    }
+                });
+                const up = (e) => {
+                    if (!drag) return;
+                    const d = drag;
+                    drag = null;
+                    el.classList.remove("dragging");
+                    if (d.moved) {
+                        scheduleSave();
+                        select(m.id, { noScroll: true });
+                    } else select(m.id, { focus: true });
+                };
+                el.addEventListener("pointerup", up);
+                el.addEventListener("pointercancel", up);
+            }
+
+            /* ============================================================
+   Rendering
+   ============================================================ */
+            let photosLoadedFor;
+            function renderAll() {
+                if (photosLoadedFor !== S.projectId) {
+                    photosLoadedFor = S.projectId;
+                    loadPhotos(S.projectId).then(() => { renderList(); renderEdit(); });
+                }
+                renderProjectSelect();
+                renderTabs();
+                renderStage();
+                renderList();
+                renderPins();
+                renderEdit();
+            }
+
+            function renderProjectSelect() {
+                const sel = $("projectSelect");
+                sel.innerHTML =
+                    `<option value="">${esc(t("selectProject"))}</option>` +
+                    S.projects
+                        .slice()
+                        .sort((a, b) => a.name.localeCompare(b.name))
+                        .map(
+                            (p) =>
+                                `<option value="${p.id}">${esc(p.name || t("untitledProject"))}</option>`,
+                        )
+                        .join("");
+                sel.value = S.projectId || "";
+            }
+            function renderTabs() {
+                const proj = curProject();
+                const el = $("plantabs");
+                if (!proj) {
+                    el.innerHTML = "";
+                    el.classList.add("hidden");
+                    return;
+                }
+                const plans = proj.planIds
+                    .map((id) => S.plans.find((p) => p.id === id))
+                    .filter(Boolean);
+                el.classList.toggle("hidden", plans.length < 2);
+                el.innerHTML = plans
+                    .map((p) => {
+                        const cnt = proj.markers.filter(
+                            (m) => m.planId === p.id,
+                        ).length;
+                        return `<button data-id="${p.id}" class="${p.id === S.planId ? "active" : ""}">${esc(p.name)} <span class="muted">${cnt}</span></button>`;
+                    })
+                    .join("");
+                el.querySelectorAll("button").forEach(
+                    (b) => (b.onclick = () => switchPlan(b.dataset.id)),
+                );
+            }
+            async function switchPlan(id) {
+                if (id === S.planId) return;
+                S.planId = id;
+                S.selId = null;
+                await saveMeta();
+                renderTabs();
+                renderStage();
+                renderList();
+                renderPins();
+                renderEdit();
+            }
+
+            function renderStage() {
+                const proj = curProject(),
+                    plan = curPlan();
+                const empty = $("stage-empty");
+                $("sbPlanName").textContent = plan ? plan.name : "";
+                if (!proj) {
+                    empty.classList.remove("hidden");
+                    empty.innerHTML = `<div><p><b>${esc(t("noProject"))}</b><br><span class="muted">${esc(t("noProjectHelp"))}</span></p><button class="primary" onclick="openProjectModal(null)">${esc(t("createProject"))}</button></div>`;
+                    img.removeAttribute("src");
+                    pinsEl.innerHTML = "";
+                    $("toolbar").classList.add("hidden");
+                    $("fab").classList.add("hidden");
+                    return;
+                }
+                if (!plan) {
+                    empty.classList.remove("hidden");
+                    empty.innerHTML = `<div><p><b>${esc(t("noPlansInProject"))}</b></p><button class="primary" onclick="openProjectModal('${proj.id}')">${esc(t("pickPlans"))}</button> <button onclick="openLibrary()">${esc(t("plans"))}</button></div>`;
+                    img.removeAttribute("src");
+                    pinsEl.innerHTML = "";
+                    $("toolbar").classList.add("hidden");
+                    $("fab").classList.add("hidden");
+                    return;
+                }
+                empty.classList.add("hidden");
+                $("toolbar").classList.remove("hidden");
+                $("fab").classList.remove("hidden");
+                if (img.dataset.planId !== plan.id) {
+                    img.dataset.planId = plan.id;
+                    img.src = planUrl(plan);
+                    img.width = plan.width;
+                    img.height = plan.height;
+                    world.style.width = plan.width + "px";
+                    world.style.height = plan.height + "px";
+                    fitView();
+                }
+                setMode(S.mode);
+            }
+            function setMode(mode) {
+                S.mode = mode;
+                vp.classList.toggle("add", mode === "add");
+                $("btnNav").classList.toggle("active", mode === "nav");
+                $("btnAdd").classList.toggle("active", mode === "add");
+                $("fab").classList.toggle("active", mode === "add");
+                $("fab").textContent = mode === "add" ? "×" : "+";
+                const h = $("hint");
+                h.classList.toggle("hidden", mode !== "add" || !curPlan());
+                h.textContent = t("addHint");
+            }
+            function renderPins() {
+                const proj = curProject();
+                pinsEl.innerHTML = "";
+                if (!proj || !curPlan()) return;
+                for (const m of planMarkers()) {
+                    const el = document.createElement("div");
+                    el.className =
+                        "pin" +
+                        (m.done ? " done" : "") +
+                        (m.id === S.selId ? " sel" : "");
+                    el.dataset.id = m.id;
+                    el.style.left = m.x * 100 + "%";
+                    el.style.top = m.y * 100 + "%";
+                    el.style.background = catColor(proj, m.categoryId);
+                    el.textContent = m.n;
+                    el.title = m.title || "";
+                    bindPinDrag(el, m);
+                    pinsEl.appendChild(el);
+                }
+            }
+            function visibleMarkers() {
+                const proj = curProject();
+                const q = S.filter.trim().toLowerCase();
+                return planMarkers()
+                    .filter((m) => !(S.hideDone && m.done))
+                    .filter(
+                        (m) =>
+                            !q ||
+                            String(m.n) === q ||
+                            (m.title || "").toLowerCase().includes(q) ||
+                            (m.notes || "").toLowerCase().includes(q) ||
+                            ((catOf(proj, m.categoryId) || {}).label || "")
+                                .toLowerCase()
+                                .includes(q),
+                    )
+                    .sort((a, b) => a.n - b.n);
+            }
+            function renderList() {
+                const proj = curProject();
+                const list = $("mlist");
+                const all = planMarkers();
+                $("mcount").textContent = all.length
+                    ? `${all.filter((m) => m.done).length}/${all.length}`
+                    : "0";
+                if (!proj || !curPlan()) {
+                    list.innerHTML = `<div class="empty-state">${esc(proj ? t("noPlansInProject") : t("noProject"))}</div>`;
+                    return;
+                }
+                const ms = visibleMarkers();
+                if (!ms.length) {
+                    list.innerHTML = `<div class="empty-state">${esc(all.length ? t("noResults") : t("noMarkers"))}${all.length ? "" : '<br><span class="small">' + esc(t("noMarkersHelp")) + "</span>"}</div>`;
+                    return;
+                }
+                list.innerHTML = ms
+                    .map((m) => {
+                        const c = catOf(proj, m.categoryId);
+                        return `
+    <div class="mitem${m.done ? " done" : ""}${m.id === S.selId ? " sel" : ""}" data-id="${m.id}">
+      <div class="badge" style="background:${catColor(proj, m.categoryId)}">${m.n}</div>
+      <div class="body">
+        <div class="title${m.title ? "" : " empty"}">${esc(m.title || t("untitled"))}${markerPhotos(m.id).length ? `<span class="ph-count">📷 ${markerPhotos(m.id).length}</span>` : ""}</div>
+        ${c ? `<div class="sub">${esc(c.label)}</div>` : ""}
+        ${m.notes ? `<div class="notes">${esc(m.notes)}</div>` : ""}
+      </div>
+      <input type="checkbox" ${m.done ? "checked" : ""} title="${esc(t("done"))}">
+    </div>`;
+                    })
+                    .join("");
+                list.querySelectorAll(".mitem").forEach((el) => {
+                    el.addEventListener("click", (e) => {
+                        const m = proj.markers.find(
+                            (x) => x.id === el.dataset.id,
+                        );
+                        if (e.target.type === "checkbox") {
+                            m.done = e.target.checked;
+                            scheduleSave();
+                            renderList();
+                            renderPins();
+                            if (S.selId === m.id) renderEdit();
+                            return;
+                        }
+                        select(m.id, { noScroll: true });
+                        centerOn(m);
+                        if (isMobile()) $("sidebar").classList.remove("open");
+                    });
+                });
+            }
+            const isMobile = () =>
+                window.matchMedia("(max-width:820px)").matches;
+
+            function renderEdit(focus) {
+                const proj = curProject();
+                const ep = $("editpanel");
+                const m = proj && proj.markers.find((x) => x.id === S.selId);
+                if (!m) {
+                    ep.classList.add("hidden");
+                    ep.innerHTML = "";
+                    return;
+                }
+                ep.classList.remove("hidden");
+                const cats = proj.categories || [];
+                ep.innerHTML = `
+    <div class="row"><h3 class="grow"><span class="ep-badge" style="background:${catColor(proj, m.categoryId)}">${m.n}</span> ${esc(t("marker"))} ${m.n}</h3><button class="icon" id="epClose" title="${esc(t("close"))}">✕</button></div>
+    <div class="small muted">${esc(curPlan().name)} · ${esc(t("dragHint"))}</div>
+    <label class="f">${esc(t("title"))}</label><input type="text" id="epTitle" value="${esc(m.title)}" autocomplete="off">
+    <label class="f">${esc(t("category"))}</label>
+    <select id="epCat"><option value="">${esc(t("none"))}</option>${cats.map((c) => `<option value="${c.id}" ${c.id === m.categoryId ? "selected" : ""}>${esc(c.label)}</option>`).join("")}</select>
+    <label class="f">${esc(t("notes"))}</label><textarea id="epNotes">${esc(m.notes)}</textarea>
+    <label class="check"><input type="checkbox" id="epDone" ${m.done ? "checked" : ""}> ${esc(t("done"))}</label>
+    <label class="f">${esc(t("photos"))}</label>
+    <div class="photo-strip" id="epPhotos"></div>
+    <input type="file" id="epPhotoFile" accept="image/*" multiple class="hidden">
+    <input type="file" id="epPhotoCam" accept="image/*" capture="environment" class="hidden">
+    <div class="ep-actions"><button id="epShow">${esc(t("showOnPlan"))}</button><span class="grow"></span><button class="danger" id="epDel">${esc(t("deleteMarker"))}</button></div>`;
+                renderPhotoStrip(m);
+                for (const inp of [$("epPhotoFile"), $("epPhotoCam")]) inp.onchange = async () => {
+                    const f = inp.files; if (!f.length) return;
+                    await addPhotos(m, f); inp.value = "";
+                    renderPhotoStrip(m); renderList();
+                };
+                const upd = () => {
+                    m.title = $("epTitle").value;
+                    m.categoryId = $("epCat").value || null;
+                    m.notes = $("epNotes").value;
+                    m.done = $("epDone").checked;
+                    if (m.categoryId) proj.lastCategoryId = m.categoryId;
+                    scheduleSave();
+                };
+                const refresh = () => {
+                    renderList();
+                    renderPins();
+                    ep.querySelector(".ep-badge").style.background = catColor(
+                        proj,
+                        m.categoryId,
+                    );
+                };
+                $("epTitle").addEventListener("input", () => {
+                    upd();
+                    const li = document.querySelector(
+                        `.mitem[data-id="${m.id}"] .title`,
+                    );
+                    if (li) {
+                        li.textContent = m.title || t("untitled");
+                        li.classList.toggle("empty", !m.title);
+                    }
+                });
+                $("epNotes").addEventListener("input", () => {
+                    upd();
+                });
+                $("epNotes").addEventListener("change", () => {
+                    refresh();
+                });
+                $("epTitle").addEventListener("change", refresh);
+                $("epCat").addEventListener("change", () => {
+                    upd();
+                    refresh();
+                });
+                $("epDone").addEventListener("change", () => {
+                    upd();
+                    refresh();
+                });
+                $("epClose").onclick = () => select(null);
+                $("epDel").onclick = () => deleteMarker(m.id);
+                $("epShow").onclick = () => {
+                    centerOn(m);
+                    if (isMobile()) select(null);
+                };
+                if (focus && !isMobile()) $("epTitle").focus();
+                else if (focus && isMobile())
+                    setTimeout(() => $("epTitle").focus(), 50);
+            }
+
+            /* ============================================================
+   Modals
+   ============================================================ */
+            function modal(title, bodyHtml, footHtml) {
+                const bg = document.createElement("div");
+                bg.className = "modal-bg";
+                bg.innerHTML = `<div class="modal"><div class="m-head"><h2>${esc(title)}</h2><button class="icon m-close">✕</button></div><div class="m-body">${bodyHtml}</div><div class="m-foot">${footHtml || ""}</div></div>`;
+                $("modals").appendChild(bg);
+                const close = () => bg.remove();
+                bg.querySelector(".m-close").onclick = close;
+                bg.addEventListener("pointerdown", (e) => {
+                    if (e.target === bg) close();
+                });
+                return { el: bg, close };
+            }
+
+            function openProjectModal(id) {
+                const existing = id
+                    ? S.projects.find((p) => p.id === id)
+                    : null;
+                const draft = existing
+                    ? JSON.parse(JSON.stringify(existing))
+                    : {
+                          id: uid(),
+                          name: "",
+                          description: "",
+                          planIds: [],
+                          categories: [],
+                          markers: [],
+                          createdAt: Date.now(),
+                      };
+                const m = modal(
+                    existing ? t("editProject") : t("newProject"),
+                    `
+    <label class="f">${esc(t("name"))}</label><input type="text" id="pjName" value="${esc(draft.name)}">
+    <label class="f">${esc(t("description"))}</label><input type="text" id="pjDesc" value="${esc(draft.description || "")}">
+    <label class="f">${esc(t("categories"))}</label><div id="pjCats"></div><button id="pjAddCat" class="small">${esc(t("addCategory"))}</button>
+    <label class="f">${esc(t("projectPlans"))}</label>
+    <div class="plan-pick" id="pjPlans"></div>`,
+                    `${existing ? `<button class="danger" id="pjDelete">${esc(t("deleteProject"))}</button><span class="grow"></span>` : ""}<button id="pjCancel">${esc(t("cancel"))}</button><button class="primary" id="pjSave">${esc(t("save"))}</button>`,
+                );
+                const catsEl = m.el.querySelector("#pjCats");
+                const renderCats = () => {
+                    catsEl.innerHTML = draft.categories
+                        .map(
+                            (c, i) =>
+                                `<div class="cat-row" data-i="${i}"><input type="color" value="${c.color}"><input type="text" value="${esc(c.label)}" placeholder="${esc(t("categoryPh"))}"><button class="icon danger">✕</button></div>`,
+                        )
+                        .join("");
+                    catsEl.querySelectorAll(".cat-row").forEach((row) => {
+                        const i = +row.dataset.i;
+                        row.querySelector("input[type=color]").oninput = (e) =>
+                            (draft.categories[i].color = e.target.value);
+                        row.querySelector("input[type=text]").oninput = (e) =>
+                            (draft.categories[i].label = e.target.value);
+                        row.querySelector("button").onclick = () => {
+                            draft.categories.splice(i, 1);
+                            renderCats();
+                        };
+                    });
+                };
+                renderCats();
+                m.el.querySelector("#pjAddCat").onclick = () => {
+                    draft.categories.push({
+                        id: uid(),
+                        label: "",
+                        color: PALETTE[
+                            draft.categories.length % PALETTE.length
+                        ],
+                    });
+                    renderCats();
+                    const last = catsEl.querySelector(
+                        ".cat-row:last-child input[type=text]",
+                    );
+                    if (last) last.focus();
+                };
+                const plansEl = m.el.querySelector("#pjPlans");
+                if (!S.plans.length)
+                    plansEl.innerHTML = `<div class="muted small">${esc(t("noPlansYet"))}</div> <button id="pjOpenLib" class="small" style="margin-top:6px">${esc(t("plans"))}</button>`;
+                else
+                    plansEl.innerHTML = S.plans
+                        .map(
+                            (p) =>
+                                `<label><input type="checkbox" value="${p.id}" ${draft.planIds.includes(p.id) ? "checked" : ""}><img src="${planUrl(p)}"><span>${esc(p.name)}</span></label>`,
+                        )
+                        .join("");
+                const lib = m.el.querySelector("#pjOpenLib");
+                if (lib)
+                    lib.onclick = () => {
+                        m.close();
+                        openLibrary(() => openProjectModal(id));
+                    };
+                m.el.querySelector("#pjCancel").onclick = m.close;
+                const del = m.el.querySelector("#pjDelete");
+                if (del)
+                    del.onclick = async () => {
+                        if (
+                            !confirm(
+                                t("confirmDeleteProject", {
+                                    name: existing.name,
+                                }),
+                            )
+                        )
+                            return;
+                        await DB.del("projects", existing.id);
+                        await deletePhotosOfProject(existing.id);
+                        S.projects = S.projects.filter(
+                            (p) => p.id !== existing.id,
+                        );
+                        if (S.projectId === existing.id) {
+                            S.projectId = S.projects[0]
+                                ? S.projects[0].id
+                                : null;
+                            S.planId =
+                                (curProject() && curProject().planIds[0]) ||
+                                null;
+                            S.selId = null;
+                            await saveMeta();
+                        }
+                        m.close();
+                        renderAll();
+                    };
+                m.el.querySelector("#pjSave").onclick = async () => {
+                    draft.name =
+                        m.el.querySelector("#pjName").value.trim() ||
+                        t("untitledProject");
+                    draft.description = m.el
+                        .querySelector("#pjDesc")
+                        .value.trim();
+                    draft.categories = draft.categories
+                        .filter((c) => c.label.trim())
+                        .map((c) => ({ ...c, label: c.label.trim() }));
+                    const picked = [
+                        ...plansEl.querySelectorAll("input:checked"),
+                    ].map((i) => i.value);
+                    // keep order of previously chosen plans, append new
+                    draft.planIds = draft.planIds
+                        .filter((x) => picked.includes(x))
+                        .concat(
+                            picked.filter((x) => !draft.planIds.includes(x)),
+                        );
+                    const dropped = draft.markers.filter((mk) => !draft.planIds.includes(mk.planId)).map((mk) => mk.id);
+                    draft.markers = draft.markers.filter((mk) =>
+                        draft.planIds.includes(mk.planId),
+                    );
+                    await saveProject(draft);
+                    if (dropped.length) await deletePhotosOfMarkers(dropped);
+                    const idx = S.projects.findIndex((p) => p.id === draft.id);
+                    if (idx >= 0) S.projects[idx] = draft;
+                    else S.projects.push(draft);
+                    S.projectId = draft.id;
+                    if (!draft.planIds.includes(S.planId))
+                        S.planId = draft.planIds[0] || null;
+                    if (!draft.markers.find((mk) => mk.id === S.selId))
+                        S.selId = null;
+                    await saveMeta();
+                    m.close();
+                    renderAll();
+                };
+                setTimeout(() => m.el.querySelector("#pjName").focus(), 30);
+            }
+
+            function openLibrary(onClose) {
+                const m = modal(
+                    t("library"),
+                    `
+    <div class="dropzone" id="libDrop">${esc(t("dropHint"))}<input type="file" id="libFile" multiple accept="image/*,application/pdf" class="hidden"></div>
+    <div id="libList"></div><div class="small muted" id="libStorage"></div>`,
+                    `<button class="primary" id="libClose">${esc(t("close"))}</button>`,
+                );
+                const list = m.el.querySelector("#libList");
+                const render = () => {
+                    if (!S.plans.length) {
+                        list.innerHTML = `<div class="empty-state">${esc(t("noPlansYet"))}</div>`;
+                    } else
+                        list.innerHTML = S.plans
+                            .slice()
+                            .sort((a, b) => a.name.localeCompare(b.name))
+                            .map((p) => {
+                                const used = S.projects
+                                    .filter((pr) => pr.planIds.includes(p.id))
+                                    .map((pr) => pr.name);
+                                return `<div class="lib-item" data-id="${p.id}"><img src="${planUrl(p)}"><div class="grow"><input type="text" value="${esc(p.name)}"><div class="small muted" style="margin-top:3px">${p.width}×${p.height} · ${used.length ? esc(t("usedIn")) + ": " + esc(used.join(", ")) : esc(t("notUsed"))}</div></div><button class="icon danger">✕</button></div>`;
+                            })
+                            .join("");
+                    list.querySelectorAll(".lib-item").forEach((row) => {
+                        const p = S.plans.find((x) => x.id === row.dataset.id);
+                        row.querySelector("input").addEventListener(
+                            "change",
+                            async (e) => {
+                                p.name = e.target.value.trim() || p.name;
+                                e.target.value = p.name;
+                                await DB.put("plans", p);
+                                renderTabs();
+                                renderStage();
+                            },
+                        );
+                        row.querySelector("button").onclick = async () => {
+                            const used = S.projects.filter((pr) =>
+                                pr.planIds.includes(p.id),
+                            );
+                            let msg = t("confirmDeletePlan", { name: p.name });
+                            if (used.length)
+                                msg +=
+                                    "\n\n" +
+                                    t("planInUse", {
+                                        list: used
+                                            .map((u) => u.name)
+                                            .join(", "),
+                                    });
+                            if (!confirm(msg)) return;
+                            await DB.del("plans", p.id);
+                            S.plans = S.plans.filter((x) => x.id !== p.id);
+                            for (const pr of used) {
+                                pr.planIds = pr.planIds.filter(
+                                    (x) => x !== p.id,
+                                );
+                                await deletePhotosOfMarkers(pr.markers.filter((mk) => mk.planId === p.id).map((mk) => mk.id));
+                                pr.markers = pr.markers.filter(
+                                    (mk) => mk.planId !== p.id,
+                                );
+                                await saveProject(pr);
+                            }
+                            if (S.planId === p.id) {
+                                S.planId =
+                                    (curProject() && curProject().planIds[0]) ||
+                                    null;
+                                S.selId = null;
+                                img.dataset.planId = "";
+                                await saveMeta();
+                            }
+                            render();
+                            renderAll();
+                        };
+                    });
+                    if (navigator.storage && navigator.storage.estimate)
+                        navigator.storage.estimate().then((e) => {
+                            m.el.querySelector("#libStorage").textContent =
+                                `${t("storage")}: ${(e.usage / 1048576).toFixed(1)} MB`;
+                        });
+                };
+                render();
+                const drop = m.el.querySelector("#libDrop"),
+                    file = m.el.querySelector("#libFile");
+                drop.onclick = () => file.click();
+                file.onchange = async () => {
+                    await addPlanFiles(file.files);
+                    file.value = "";
+                    render();
+                    renderTabs();
+                };
+                drop.ondragover = (e) => {
+                    e.preventDefault();
+                    drop.classList.add("over");
+                };
+                drop.ondragleave = () => drop.classList.remove("over");
+                drop.ondrop = async (e) => {
+                    e.preventDefault();
+                    drop.classList.remove("over");
+                    await addPlanFiles(e.dataTransfer.files);
+                    render();
+                    renderTabs();
+                };
+                const close = () => {
+                    m.close();
+                    if (onClose) onClose();
+                };
+                m.el.querySelector("#libClose").onclick = close;
+                m.el.querySelector(".m-close").onclick = close;
+            }
+
+            /* ============================================================
+   Project menu
+   ============================================================ */
+            function showMenu(anchor, items) {
+                document.querySelectorAll(".menu").forEach((x) => x.remove());
+                const menu = document.createElement("div");
+                menu.className = "menu";
+                menu.innerHTML = items
+                    .map((it) =>
+                        it === "-"
+                            ? "<hr>"
+                            : `<button ${it.disabled ? "disabled" : ""}>${esc(it.label)}</button>`,
+                    )
+                    .join("");
+                document.body.appendChild(menu);
+                const r = anchor.getBoundingClientRect();
+                menu.style.top = r.bottom + 4 + "px";
+                menu.style.left =
+                    Math.min(r.left, window.innerWidth - menu.offsetWidth - 8) +
+                    "px";
+                let bi = 0;
+                items.forEach((it) => {
+                    if (it === "-") return;
+                    const b = menu.querySelectorAll("button")[bi++];
+                    b.onclick = () => {
+                        menu.remove();
+                        it.action();
+                    };
+                });
+                setTimeout(
+                    () =>
+                        document.addEventListener("pointerdown", function h(e) {
+                            if (!menu.contains(e.target)) {
+                                menu.remove();
+                                document.removeEventListener("pointerdown", h);
+                            }
+                        }),
+                    0,
+                );
+            }
+            $("btnProjectMenu").onclick = (e) => {
+                const proj = curProject();
+                showMenu(e.currentTarget, [
+                    {
+                        label: t("newProject"),
+                        action: () => openProjectModal(null),
+                    },
+                    {
+                        label: t("editProject"),
+                        disabled: !proj,
+                        action: () => openProjectModal(proj.id),
+                    },
+                    {
+                        label: t("duplicateProject"),
+                        disabled: !proj,
+                        action: async () => {
+                            const d = JSON.parse(JSON.stringify(proj));
+                            d.id = uid();
+                            d.name = proj.name + " (2)";
+                            d.createdAt = Date.now();
+                            for (const mk of d.markers) {
+                                const oldId = mk.id; mk.id = uid();
+                                for (const ph of await DB.byIndex("photos", "markerId", oldId))
+                                    await DB.put("photos", { ...ph, id: uid(), markerId: mk.id, projectId: d.id });
+                            }
+                            await saveProject(d);
+                            S.projects.push(d);
+                            S.projectId = d.id;
+                            S.selId = null;
+                            await saveMeta();
+                            renderAll();
+                        },
+                    },
+                    "-",
+                    {
+                        label: t("renumber"),
+                        disabled: !proj || !curPlan(),
+                        action: async () => {
+                            if (!confirm(t("confirmRenumber"))) return;
+                            planMarkers()
+                                .sort((a, b) => a.createdAt - b.createdAt)
+                                .forEach((mk, i) => (mk.n = i + 1));
+                            await saveProject(proj);
+                            renderList();
+                            renderPins();
+                            renderEdit();
+                        },
+                    },
+                    "-",
+                    {
+                        label: t("deleteProject"),
+                        disabled: !proj,
+                        action: async () => {
+                            if (
+                                !confirm(
+                                    t("confirmDeleteProject", {
+                                        name: proj.name,
+                                    }),
+                                )
+                            )
+                                return;
+                            await DB.del("projects", proj.id);
+                            await deletePhotosOfProject(proj.id);
+                            S.projects = S.projects.filter(
+                                (p) => p.id !== proj.id,
+                            );
+                            S.projectId = S.projects[0]
+                                ? S.projects[0].id
+                                : null;
+                            S.planId =
+                                (curProject() && curProject().planIds[0]) ||
+                                null;
+                            S.selId = null;
+                            img.dataset.planId = "";
+                            await saveMeta();
+                            renderAll();
+                        },
+                    },
+                ]);
+            };
+            $("projectSelect").onchange = async (e) => {
+                S.projectId = e.target.value || null;
+                S.selId = null;
+                const p = curProject();
+                S.planId = (p && p.planIds[0]) || null;
+                img.dataset.planId = "";
+                await saveMeta();
+                renderAll();
+            };
+
+            /* ============================================================
+   Import / export
+   ============================================================ */
+            const blobToDataURL = (b) =>
+                new Promise((res) => {
+                    const r = new FileReader();
+                    r.onload = () => res(r.result);
+                    r.readAsDataURL(b);
+                });
+            async function dataURLToBlob(d) {
+                return (await fetch(d)).blob();
+            }
+            function download(name, blob) {
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = name;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                    URL.revokeObjectURL(a.href);
+                    a.remove();
+                }, 1000);
+            }
+            const safeName = (s) =>
+                (s || "export").replace(/[^\w\-. ]+/g, "_").slice(0, 60);
+            const dateStr = () => new Date().toISOString().slice(0, 10);
+            async function exportJson(projects) {
+                const planIds = new Set(projects.flatMap((p) => p.planIds));
+                const plans = [];
+                for (const p of S.plans.filter((x) => planIds.has(x.id)))
+                    plans.push({
+                        id: p.id,
+                        name: p.name,
+                        width: p.width,
+                        height: p.height,
+                        createdAt: p.createdAt,
+                        image: await blobToDataURL(p.image),
+                    });
+                const photos = [];
+                for (const proj of projects)
+                    for (const ph of await DB.byIndex("photos", "projectId", proj.id))
+                        photos.push({ id: ph.id, markerId: ph.markerId, projectId: ph.projectId, width: ph.width, height: ph.height, createdAt: ph.createdAt, image: await blobToDataURL(ph.image) });
+                const data = {
+                    format: "floorplan-marker",
+                    version: 2,
+                    exportedAt: new Date().toISOString(),
+                    projects,
+                    plans,
+                    photos,
+                };
+                const name =
+                    projects.length === 1
+                        ? safeName(projects[0].name)
+                        : "floorplan-marker-all";
+                download(
+                    `${name}_${dateStr()}.json`,
+                    new Blob([JSON.stringify(data)], {
+                        type: "application/json",
+                    }),
+                );
+            }
+            async function importJson(file) {
+                let data;
+                try {
+                    data = JSON.parse(await file.text());
+                    if (
+                        data.format !== "floorplan-marker" ||
+                        !Array.isArray(data.projects)
+                    )
+                        throw 0;
+                } catch {
+                    toast(t("importError"));
+                    return;
+                }
+                let np = 0,
+                    nf = 0,
+                    nph = 0;
+                for (const p of data.plans || []) {
+                    const blob = await dataURLToBlob(p.image);
+                    await DB.put("plans", {
+                        id: p.id,
+                        name: p.name,
+                        width: p.width,
+                        height: p.height,
+                        createdAt: p.createdAt || Date.now(),
+                        image: blob,
+                    });
+                    nf++;
+                }
+                for (const p of data.projects) {
+                    p.markers = p.markers || [];
+                    p.categories = p.categories || [];
+                    p.planIds = p.planIds || [];
+                    await DB.put("projects", p);
+                    np++;
+                }
+                for (const ph of data.photos || []) {
+                    const blob = await dataURLToBlob(ph.image);
+                    await DB.put("photos", { id: ph.id, markerId: ph.markerId, projectId: ph.projectId, width: ph.width, height: ph.height, createdAt: ph.createdAt || Date.now(), image: blob });
+                    nph++;
+                }
+                S.plans = await DB.getAll("plans");
+                S.projects = await DB.getAll("projects");
+                urlCache.forEach((u) => URL.revokeObjectURL(u));
+                urlCache.clear();
+                photoUrlCache.forEach((u) => URL.revokeObjectURL(u));
+                photoUrlCache.clear();
+                photosLoadedFor = undefined;
+                img.dataset.planId = "";
+                if (!curProject() && data.projects[0]) {
+                    S.projectId = data.projects[0].id;
+                    S.planId = data.projects[0].planIds[0] || null;
+                }
+                await saveMeta();
+                renderAll();
+                toast(t("imported", { p: np, f: nf }) + (nph ? ` · 📷 ${nph}` : ""));
+            }
+            function exportCsv(proj) {
+                const rows = [
+                    [
+                        t("plan"),
+                        t("nr"),
+                        t("title"),
+                        t("category"),
+                        t("notes"),
+                        t("status"),
+                        "x",
+                        "y",
+                    ],
+                ];
+                for (const pid of proj.planIds) {
+                    const plan = S.plans.find((p) => p.id === pid);
+                    if (!plan) continue;
+                    for (const m of proj.markers
+                        .filter((x) => x.planId === pid)
+                        .sort((a, b) => a.n - b.n))
+                        rows.push([
+                            plan.name,
+                            m.n,
+                            m.title,
+                            (catOf(proj, m.categoryId) || {}).label || "",
+                            m.notes,
+                            m.done ? t("done") : t("open"),
+                            m.x.toFixed(4),
+                            m.y.toFixed(4),
+                        ]);
+                }
+                const csv =
+                    "\uFEFF" +
+                    rows
+                        .map((r) =>
+                            r
+                                .map(
+                                    (v) =>
+                                        '"' +
+                                        String(v ?? "").replace(/"/g, '""') +
+                                        '"',
+                                )
+                                .join(";"),
+                        )
+                        .join("\r\n");
+                download(
+                    `${safeName(proj.name)}_${dateStr()}.csv`,
+                    new Blob([csv], { type: "text/csv;charset=utf-8" }),
+                );
+            }
+            $("btnData").onclick = () => {
+                const proj = curProject();
+                const m = modal(
+                    t("importExport"),
+                    `
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button id="exProj" ${proj ? "" : "disabled"}>${esc(t("exportProject"))}</button>
+      <button id="exAll" ${S.projects.length ? "" : "disabled"}>${esc(t("exportAll"))}</button>
+      <button id="exCsv" ${proj ? "" : "disabled"}>${esc(t("exportCsv"))}</button>
+      <hr style="border:none;border-top:1px solid var(--border);margin:6px 0">
+      <button class="primary" id="imBtn">${esc(t("importJson"))}</button><input type="file" id="imFile" accept="application/json,.json" class="hidden">
+      <div class="small muted">${esc(t("importHelp"))}</div>
+    </div>`,
+                    `<button id="dClose">${esc(t("close"))}</button>`,
+                );
+                m.el.querySelector("#dClose").onclick = m.close;
+                m.el.querySelector("#exProj").onclick = () =>
+                    exportJson([proj]);
+                m.el.querySelector("#exAll").onclick = () =>
+                    exportJson(S.projects);
+                m.el.querySelector("#exCsv").onclick = () => exportCsv(proj);
+                const f = m.el.querySelector("#imFile");
+                m.el.querySelector("#imBtn").onclick = () => f.click();
+                f.onchange = async () => {
+                    if (f.files[0]) {
+                        await importJson(f.files[0]);
+                        m.close();
+                    }
+                };
+            };
+
+            /* ============================================================
+   Print
+   ============================================================ */
+            function buildPrint(proj) {
+                const root = $("printroot");
+                root.innerHTML = "";
+                const plans = proj.planIds
+                    .map((id) => S.plans.find((p) => p.id === id))
+                    .filter(Boolean);
+                if (!plans.length) {
+                    toast(t("printNoPlans"));
+                    return false;
+                }
+                const usedCats = proj.categories.filter((c) =>
+                    proj.markers.some((m) => m.categoryId === c.id),
+                );
+                root.innerHTML = plans
+                    .map((plan, pi) => {
+                        const ms = proj.markers
+                            .filter((m) => m.planId === plan.id)
+                            .sort((a, b) => a.n - b.n);
+                        return `<div class="p-page">
+      <div class="p-head"><h1>${esc(proj.name)}</h1><h2>${esc(plan.name)} · ${esc(t("page"))} ${pi + 1}/${plans.length} · ${new Date().toLocaleDateString(lang === "nl" ? "nl-NL" : "en-GB")}</h2></div>
+      ${proj.description ? `<p class="p-desc">${esc(proj.description)}</p>` : ""}
+      ${usedCats.length ? `<div class="p-legend">${usedCats.map((c) => `<span><span class="dot" style="background:${c.color}"></span>${esc(c.label)}</span>`).join("")}</div>` : ""}
+      <div class="p-plan"><img src="${planUrl(plan)}">${ms.map((m) => `<div class="p-pin${m.done ? " done" : ""}" style="left:${m.x * 100}%;top:${m.y * 100}%;background:${catColor(proj, m.categoryId)}">${m.n}</div>`).join("")}</div>
+      ${
+          ms.length
+              ? `<table class="p-table"><thead><tr><th>${esc(t("nr"))}</th><th>${esc(t("title"))}</th><th>${esc(t("category"))}</th><th>${esc(t("notes"))}</th><th>${esc(t("status"))}</th></tr></thead><tbody>
+        ${ms
+            .map((m) => {
+                const c = catOf(proj, m.categoryId);
+                return `<tr class="${m.done ? "done" : ""}"><td class="n">${m.n}</td><td>${esc(m.title)}</td><td>${c ? `<span class="dot" style="background:${c.color}"></span>${esc(c.label)}` : ""}</td><td class="notes">${esc(m.notes)}</td><td>${m.done ? "☑ " + esc(t("done")) : "☐ " + esc(t("open"))}</td></tr>`;
+            })
+            .join("")}
+      </tbody></table>`
+              : `<p class="muted">${esc(t("noMarkers"))}</p>`
+      }
+      ${(() => {
+          const withPhotos = ms.filter((m) => markerPhotos(m.id).length);
+          if (!withPhotos.length) return "";
+          return `<h3 class="p-photos-h">${esc(t("photosOfPlan"))}</h3><div class="p-photos">${withPhotos
+              .map((m) => markerPhotos(m.id).map((ph, i) => `<figure><img src="${photoUrl(ph)}"><figcaption><b>${m.n}</b> ${esc(m.title)}${markerPhotos(m.id).length > 1 ? ` (${i + 1})` : ""}</figcaption></figure>`).join(""))
+              .join("")}</div>`;
+      })()}
+    </div>`;
+                    })
+                    .join("");
+                return true;
+            }
+            $("btnPrint").onclick = () => {
+                const p = curProject();
+                if (!p) return;
+                if (buildPrint(p)) setTimeout(() => window.print(), 150);
+            };
+
+            /* ============================================================
+   Wiring
+   ============================================================ */
+            $("btnPlans").onclick = () =>
+                openLibrary(() => {
+                    renderTabs();
+                    renderStage();
+                });
+            $("btnLang").onclick = () => {
+                lang = lang === "nl" ? "en" : "nl";
+                localStorage.setItem("fpm-lang", lang);
+                applyI18n();
+                renderAll();
+            };
+            $("btnNav").onclick = () => setMode("nav");
+            $("btnAdd").onclick = () =>
+                setMode(S.mode === "add" ? "nav" : "add");
+            $("fab").onclick = () => {
+                setMode(S.mode === "add" ? "nav" : "add");
+                $("sidebar").classList.remove("open");
+            };
+            $("btnFit").onclick = fitView;
+            $("btnZoomIn").onclick = () => {
+                const r = vp.getBoundingClientRect();
+                zoomAt(1.3, r.width / 2, r.height / 2);
+            };
+            $("btnZoomOut").onclick = () => {
+                const r = vp.getBoundingClientRect();
+                zoomAt(1 / 1.3, r.width / 2, r.height / 2);
+            };
+            $("filter").oninput = (e) => {
+                S.filter = e.target.value;
+                renderList();
+            };
+            $("hideDone").onchange = (e) => {
+                S.hideDone = e.target.checked;
+                renderList();
+            };
+            $("sbHead").addEventListener("click", (e) => {
+                if (isMobile() && !e.target.closest("input,label"))
+                    $("sidebar").classList.toggle("open");
+            });
+            document.addEventListener("keydown", (e) => {
+                if (e.target.matches("input,textarea,select")) {
+                    if (e.key === "Escape") e.target.blur();
+                    return;
+                }
+                if (e.key === "Escape") {
+                    if (S.mode === "add") setMode("nav");
+                    else select(null);
+                }
+                if (e.key === "a" || e.key === "A")
+                    setMode(S.mode === "add" ? "nav" : "add");
+                if (e.key === "f" || e.key === "F") fitView();
+                if ((e.key === "Delete" || e.key === "Backspace") && S.selId)
+                    deleteMarker(S.selId);
+            });
+            // prevent browser page zoom on ctrl+wheel / double-tap outside the viewport
+            document.addEventListener("gesturestart", (e) =>
+                e.preventDefault(),
+            );
+            window.addEventListener("beforeprint", () => {
+                const p = curProject();
+                if (p) buildPrint(p);
+            });
+
+            (async function init() {
+                applyI18n();
+                await DB.open();
+                S.plans = await DB.getAll("plans");
+                S.projects = await DB.getAll("projects");
+                const meta = await DB.tx("meta", "readonly", (o) =>
+                    o.get("state"),
+                );
+                if (meta) {
+                    S.projectId = meta.projectId;
+                    S.planId = meta.planId;
+                }
+                if (!curProject() && S.projects[0])
+                    S.projectId = S.projects[0].id;
+                const p = curProject();
+                if (p && !p.planIds.includes(S.planId))
+                    S.planId = p.planIds[0] || null;
+                renderAll();
+            })();
+        </script>
+    </body>
+</html>
