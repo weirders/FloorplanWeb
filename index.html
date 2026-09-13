@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#1f2937">
 <title>Floorplan Marker</title>
+<script src="https://weirders.github.io/ToolDeck/sync.v1.js"></script>
 <style>
 :root{
   --bg:#f3f4f6; --panel:#ffffff; --border:#e5e7eb; --text:#111827; --muted:#6b7280;
@@ -102,12 +103,6 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#9ca3af;vertical-align:middle;margin-right:5px;flex-shrink:0}
 .dot.on{background:#22c55e}.dot.busy{background:#f59e0b}.dot.err{background:#ef4444}
 #btnSync .dot{margin:0 4px 0 0}
-.sync-id{display:flex;gap:6px;align-items:center;background:#f3f4f6;border-radius:6px;padding:6px 8px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break:break-all}
-.contact{display:flex;gap:8px;align-items:center;padding:8px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px}
-.contact .c-name{font-weight:600}
-.contact .c-id{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:var(--muted);word-break:break-all}
-.contact .c-state{font-size:12px;color:var(--muted)}
-.sync-log{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;background:#111827;color:#d1d5db;border-radius:6px;padding:8px;max-height:140px;overflow:auto;white-space:pre-wrap;margin-top:10px}
 #editpanel .ep-actions{display:flex;gap:6px;margin-top:16px;flex-wrap:wrap}
 .check{display:flex;align-items:center;gap:8px;margin-top:12px;cursor:pointer}
 .check input{width:18px;height:18px}
@@ -273,13 +268,8 @@ nl:{
  deleteMarker:"Markering verwijderen", position:"Positie", dragHint:"Sleep de speld om te verplaatsen", all:"Alle", categoryFilter:"Categorie",
  photos:"Foto's", addPhoto:"Kies foto", takePhoto:"Camera", deletePhoto:"Foto verwijderen", confirmDeletePhoto:"Deze foto verwijderen?", photosOfPlan:"Foto's",
  photoPending:"Foto wordt nog gesynchroniseerd…",
- sync:"Synchronisatie", myId:"Mijn apparaat-ID", copy:"Kopieer", copied:"Gekopieerd", contacts:"Apparaten", noContacts:"Nog geen apparaten gekoppeld. Plak hieronder het ID van een ander apparaat.",
- peerIdPh:"Apparaat-ID van de ander", labelPh:"Naam (bijv. Telefoon Jelle)", addContact:"Koppelen", syncNow:"Nu synchroniseren", removeContact:"Ontkoppelen",
- confirmRemoveContact:"Apparaat “{name}” ontkoppelen?", stOffline:"Offline", stConnecting:"Verbinden…", stConnected:"Verbonden", stSyncing:"Synchroniseren…",
- brokerOffline:"Niet verbonden met de signaleringsserver", brokerConnecting:"Verbinden met signaleringsserver…", brokerOnline:"Online", brokerIdTaken:"Dit ID is al in gebruik in een ander tabblad of venster. Sluit dat eerst; synchronisatie is hier uitgeschakeld.", brokerError:"Fout: {msg}",
- unknownPeer:"Onbekend apparaat wil verbinden", unknownPeerHelp:"Voeg het toe om te synchroniseren, of weiger.", accept:"Toevoegen", decline:"Weigeren",
- lastSync:"Laatste sync", never:"nooit", syncDone:"Sync met {name}: {r} records, {a} bestanden ontvangen", syncHelp:"Beide apparaten moeten deze pagina open hebben. Koppel elkaar wederzijds via het ID; daarna verbinden ze automatisch en wisselen ze wijzigingen uit (laatste wijziging wint). Foto's gaan rechtstreeks van apparaat naar apparaat.",
- invalidPeerId:"Ongeldig ID", selfPeerId:"Dat is je eigen ID", syncDisabled:"Sync is niet beschikbaar (PeerJS kon niet geladen worden)",
+ sync:"Synchronisatie", stConnected:"Verbonden", viaOtherWindow:"via ander venster", myId:"Mijn apparaat-ID", copy:"Kopieer", copied:"Gekopieerd", contacts:"Apparaten", noContacts:"Nog geen apparaten gekoppeld. Plak hieronder het ID van een ander apparaat.",
+ noSyncLib:"Deze app heeft de gedeelde synchronisatielaag van ToolDeck nodig (weirders.github.io/ToolDeck/sync.v1.js). Controleer de internetverbinding en herlaad.",
 },
 en:{
  appTitle:"Floorplan Marker", plans:"Floor plans", print:"Print", importExport:"Import / export",
@@ -306,13 +296,8 @@ en:{
  deleteMarker:"Delete marker", position:"Position", dragHint:"Drag the pin to move it", all:"All", categoryFilter:"Category",
  photos:"Photos", addPhoto:"Choose photo", takePhoto:"Camera", deletePhoto:"Delete photo", confirmDeletePhoto:"Delete this photo?", photosOfPlan:"Photos",
  photoPending:"Photo not synced yet…",
- sync:"Sync", myId:"My device ID", copy:"Copy", copied:"Copied", contacts:"Devices", noContacts:"No devices paired yet. Paste another device's ID below.",
- peerIdPh:"Other device's ID", labelPh:"Name (e.g. Jelle's phone)", addContact:"Pair", syncNow:"Sync now", removeContact:"Unpair",
- confirmRemoveContact:"Unpair device “{name}”?", stOffline:"Offline", stConnecting:"Connecting…", stConnected:"Connected", stSyncing:"Syncing…",
- brokerOffline:"Not connected to the signalling server", brokerConnecting:"Connecting to signalling server…", brokerOnline:"Online", brokerIdTaken:"This ID is already in use in another tab or window. Close that one first; sync is disabled here.", brokerError:"Error: {msg}",
- unknownPeer:"Unknown device wants to connect", unknownPeerHelp:"Add it to sync with it, or decline.", accept:"Add", decline:"Decline",
- lastSync:"Last sync", never:"never", syncDone:"Sync with {name}: {r} records, {a} files received", syncHelp:"Both devices need this page open. Pair each other by ID; they then connect automatically and exchange changes (last write wins). Photos go directly from device to device.",
- invalidPeerId:"Invalid ID", selfPeerId:"That is your own ID", syncDisabled:"Sync unavailable (PeerJS could not be loaded)",
+ sync:"Sync", stConnected:"Connected", viaOtherWindow:"via another window", myId:"My device ID", copy:"Copy", copied:"Copied", contacts:"Devices", noContacts:"No devices paired yet. Paste another device's ID below.",
+ noSyncLib:"This app needs the shared ToolDeck sync layer (weirders.github.io/ToolDeck/sync.v1.js). Check your connection and reload.",
 }};
 let lang = localStorage.getItem('fpm-lang') || 'nl';
 const t = (k, vars) => { let s = (I18N[lang] && I18N[lang][k]) || I18N.en[k] || k; if (vars) for (const v in vars) s = s.replace('{'+v+'}', vars[v]); return s; };
@@ -326,40 +311,19 @@ function applyI18n(){
 }
 
 /* ============================================================
-   IndexedDB  (schema v3)
-   stores: plans, projects, markers, photos  = synced records {id, updatedAt, deleted, ...}
-           assets   = content-addressed binaries {hash, blob, mime, size}
-           contacts = sync peers {peerId, label, lastSeen}
-           meta     = local state {key, ...}
+   Storage: everything lives in the shared sfha-sync layer (window.SfhaSync,
+   contract v1). App name "floorplan", collections plans / projects / markers /
+   photos. Records are {id, app, coll, updatedAt, deleted, payload}; in memory we
+   keep a flattened cache {id, updatedAt, deleted, ...payload} that is re-read
+   from SfhaSync on every onChange event — the DB is the single source of truth.
+   Binary files (plan images, photos) are content-addressed assets referenced by
+   `hash` in the payload.
    ============================================================ */
+const APP = 'floorplan';
 const RECORD_STORES = ['plans', 'projects', 'markers', 'photos'];
-const DB = {
-  db: null,
-  open(){ return new Promise((res, rej) => {
-    const r = indexedDB.open('floorplan-marker', 3);
-    r.onupgradeneeded = e => {
-      const d = e.target.result, has = n => d.objectStoreNames.contains(n);
-      if (!has('plans')) d.createObjectStore('plans', {keyPath:'id'});
-      if (!has('projects')) d.createObjectStore('projects', {keyPath:'id'});
-      if (!has('meta')) d.createObjectStore('meta', {keyPath:'key'});
-      if (!has('photos')) d.createObjectStore('photos', {keyPath:'id'});
-      if (!has('markers')) d.createObjectStore('markers', {keyPath:'id'});
-      if (!has('assets')) d.createObjectStore('assets', {keyPath:'hash'});
-      if (!has('contacts')) d.createObjectStore('contacts', {keyPath:'peerId'});
-    };
-    r.onsuccess = e => { DB.db = e.target.result; res(); };
-    r.onerror = e => rej(e.target.error);
-    r.onblocked = () => rej(new Error('Database upgrade blocked by another open tab'));
-  }); },
-  tx(store, mode, fn){ return new Promise((res, rej) => {
-    const tx = DB.db.transaction(store, mode); const req = fn(tx.objectStore(store));
-    tx.oncomplete = () => res(req && req.result); tx.onerror = e => rej(e.target.error); tx.onabort = e => rej(e.target.error);
-  }); },
-  getAll(s){ return DB.tx(s, 'readonly', o => o.getAll()); },
-  get(s, k){ return DB.tx(s, 'readonly', o => o.get(k)); },
-  put(s, v){ return DB.tx(s, 'readwrite', o => o.put(v)); },
-  del(s, k){ return DB.tx(s, 'readwrite', o => o.delete(k)); },
-};
+const nowIso = () => new Date().toISOString();
+const flat = r => ({...r.payload, id: r.id, updatedAt: r.updatedAt, deleted: !!r.deleted});
+const unflat = o => { const {id, updatedAt, deleted, ...payload} = o; return {id, updatedAt, deleted: !!deleted, payload}; };
 
 /* ---------- hashing / assets ---------- */
 async function sha256(bufOrBlob){
@@ -367,44 +331,23 @@ async function sha256(bufOrBlob){
   const h = await crypto.subtle.digest('SHA-256', buf);
   return [...new Uint8Array(h)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
-const assets = new Map(); // hash -> Blob (all local assets, loaded at start)
+const assets = new Map();   // hash -> Blob, cache of the assets this app references
 const urlCache = new Map(); // hash -> object URL
 const assetUrl = hash => { const b = assets.get(hash); if (!b) return ''; if (!urlCache.has(hash)) urlCache.set(hash, URL.createObjectURL(b)); return urlCache.get(hash); };
-async function storeAsset(blob){
-  const hash = await sha256(blob);
-  if (!assets.has(hash)) { await DB.put('assets', {hash, blob, mime: blob.type, size: blob.size}); assets.set(hash, blob); }
-  return hash;
-}
-
-/* ---------- migration from schema v1/v2 (embedded markers, blobs in records) ---------- */
-const nowIso = () => new Date().toISOString();
-async function migrate(){
-  const schema = (await DB.get('meta', 'schema') || {}).v || 0;
-  if (schema >= 3) return;
-  const stamp = new Date(0).toISOString(); // migrated records get an epoch timestamp so any real edit wins
-  for (const p of await DB.getAll('plans')) {
-    if (p.image instanceof Blob) { p.hash = await storeAsset(p.image); delete p.image; }
-    p.updatedAt = p.updatedAt || stamp; p.deleted = !!p.deleted; await DB.put('plans', p);
-  }
-  for (const pr of await DB.getAll('projects')) {
-    if (Array.isArray(pr.markers)) {
-      for (const m of pr.markers) await DB.put('markers', {...m, projectId: pr.id, updatedAt: m.updatedAt || stamp, deleted: !!m.deleted});
-      delete pr.markers;
-    }
-    pr.updatedAt = pr.updatedAt || stamp; pr.deleted = !!pr.deleted; await DB.put('projects', pr);
-  }
-  for (const ph of await DB.getAll('photos')) {
-    if (ph.image instanceof Blob) { ph.hash = await storeAsset(ph.image); delete ph.image; }
-    ph.updatedAt = ph.updatedAt || stamp; ph.deleted = !!ph.deleted; await DB.put('photos', ph);
-  }
-  await DB.put('meta', {key: 'schema', v: 3});
+async function storeAsset(blob){ const hash = await SfhaSync.putAsset(blob); assets.set(hash, blob); return hash; }
+/** Pull every asset referenced by live plans/photos into the cache (skips ones we already hold or that have not arrived yet). */
+async function loadAssets(){
+  const wanted = new Set([...live(S.plans).map(p => p.hash), ...live(S.photos).map(p => p.hash)].filter(Boolean));
+  let changed = false;
+  for (const h of wanted) if (!assets.has(h)) { const b = await SfhaSync.getAsset(h); if (b) { assets.set(h, b); changed = true; } }
+  return changed;
 }
 
 /* ============================================================
    State & record helpers
    ============================================================ */
-const S = { plans: [], projects: [], markers: [], photos: [], contacts: [], projectId: null, planId: null, mode: 'nav', selId: null, filter: '', hideDone: false };
-const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10));
+const S = { plans: [], projects: [], markers: [], photos: [], projectId: null, planId: null, mode: 'nav', selId: null, filter: '', hideDone: false };
+const uid = () => (window.SfhaSync && SfhaSync.util && SfhaSync.util.uid) ? SfhaSync.util.uid() : (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10));
 const PALETTE = ['#dc2626','#2563eb','#16a34a','#f59e0b','#7c3aed','#0891b2','#db2777','#65a30d','#ea580c','#4b5563'];
 const DEFAULT_COLOR = '#374151';
 const $ = id => document.getElementById(id);
@@ -422,25 +365,57 @@ const planMarkers = () => S.markers.filter(m => m.projectId === S.projectId && m
 const markerPhotos = mid => S.photos.filter(p => p.markerId === mid && !p.deleted).sort((a, b) => a.createdAt - b.createdAt);
 const projectPhotos = pid => S.photos.filter(p => p.projectId === pid && !p.deleted);
 
-/** Persist a record: stamps updatedAt, updates the in-memory array, notifies sync peers. */
-async function putRec(store, rec, opts = {}){
-  if (!opts.keepStamp) rec.updatedAt = nowIso();
-  if (rec.deleted === undefined) rec.deleted = false;
-  await DB.put(store, rec);
-  const arr = S[store]; const i = arr.findIndex(r => r.id === rec.id);
+/** Persist a record through SfhaSync (stamps updatedAt unless keepStamp) and update the cache. */
+async function putRec(coll, rec, opts = {}){
+  const r = unflat(rec);
+  const stored = await SfhaSync.put(APP, coll, r, {keepStamp: !!opts.keepStamp, silent: !!opts.silent});
+  const f = flat(stored || {...r, updatedAt: rec.updatedAt || nowIso()});
+  Object.assign(rec, {id: f.id, updatedAt: f.updatedAt, deleted: f.deleted});
+  const arr = S[coll]; const i = arr.findIndex(x => x.id === rec.id);
   if (i >= 0) arr[i] = rec; else arr.push(rec);
-  if (!opts.silent) Sync.notifyChanged();
   return rec;
 }
-/** Tombstone a record (never physically removed, so peers learn about the deletion). */
-async function delRec(store, rec, opts){ rec.deleted = true; return putRec(store, rec, opts); }
+/** Tombstone a record (never physically removed, so other devices learn about the deletion). */
+async function delRec(coll, rec, opts = {}){ rec.deleted = true; return putRec(coll, rec, opts); }
 async function saveProject(p){ return putRec('projects', p); }
 async function saveMarker(m){ return putRec('markers', m); }
-async function saveMeta(){ await DB.put('meta', {key:'state', projectId:S.projectId, planId:S.planId}); }
-async function loadAll(){
-  for (const s of RECORD_STORES) S[s] = await DB.getAll(s);
-  S.contacts = await DB.getAll('contacts');
-  assets.clear(); for (const a of await DB.getAll('assets')) assets.set(a.hash, a.blob);
+/* local-only UI state (which project/plan is open) */
+function saveMeta(){ try { localStorage.setItem('fpm-state', JSON.stringify({projectId: S.projectId, planId: S.planId})); } catch {} }
+function loadMeta(){ try { return JSON.parse(localStorage.getItem('fpm-state') || 'null'); } catch { return null; } }
+async function loadColl(coll){ S[coll] = (await SfhaSync.list(APP, coll, {includeDeleted: true})).map(flat); }
+async function loadAll(){ for (const c of RECORD_STORES) await loadColl(c); await loadAssets(); }
+
+/* ---------- one-time migration of the old per-app database "floorplan-marker" (schema v1–v3) ---------- */
+async function migrateOldDb(){
+  const exists = indexedDB.databases ? (await indexedDB.databases()).some(d => d.name === 'floorplan-marker') : true;
+  if (!exists) return;
+  const db = await new Promise((res, rej) => { const r = indexedDB.open('floorplan-marker'); r.onsuccess = e => res(e.target.result); r.onerror = e => rej(e.target.error); r.onblocked = () => rej(new Error('blocked')); });
+  try {
+    const names = [...db.objectStoreNames];
+    if (!names.includes('projects')) return;
+    const all = s => names.includes(s) ? new Promise((res, rej) => { const q = db.transaction(s, 'readonly').objectStore(s).getAll(); q.onsuccess = () => res(q.result); q.onerror = e => rej(e.target.error); }) : Promise.resolve([]);
+    const epoch = new Date(0).toISOString();
+    const stamp = r => r.updatedAt || epoch;
+    const opts = {keepStamp: true, silent: true};
+    for (const a of await all('assets')) await SfhaSync.putAsset(a.blob);              // v3 assets keep their hash (same SHA-256)
+    for (const p of await all('plans')) {
+      const {image, ...rest} = p; let hash = p.hash;
+      if (image instanceof Blob) hash = await SfhaSync.putAsset(image);
+      await SfhaSync.put(APP, 'plans', unflat({...rest, hash, updatedAt: stamp(p), deleted: !!p.deleted}), opts);
+    }
+    for (const pr of await all('projects')) {
+      const {markers, ...rest} = pr;
+      await SfhaSync.put(APP, 'projects', unflat({...rest, planIds: rest.planIds || [], categories: rest.categories || [], updatedAt: stamp(pr), deleted: !!pr.deleted}), opts);
+      for (const m of markers || []) await SfhaSync.put(APP, 'markers', unflat({...m, projectId: pr.id, updatedAt: stamp(m), deleted: !!m.deleted}), opts);
+    }
+    for (const m of await all('markers')) await SfhaSync.put(APP, 'markers', unflat({...m, updatedAt: stamp(m), deleted: !!m.deleted}), opts);
+    for (const ph of await all('photos')) {
+      const {image, ...rest} = ph; let hash = ph.hash;
+      if (image instanceof Blob) hash = await SfhaSync.putAsset(image);
+      await SfhaSync.put(APP, 'photos', unflat({...rest, hash, updatedAt: stamp(ph), deleted: !!ph.deleted}), opts);
+    }
+    const st = await all('meta'); const s = st.find(x => x.key === 'state'); if (s && !loadMeta()) { S.projectId = s.projectId; S.planId = s.planId; saveMeta(); }
+  } finally { db.close(); }
 }
 
 function toast(msg){ const el = $('toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 2600); }
@@ -693,7 +668,7 @@ function bindPinDrag(el, m){
 /* ============================================================
    Rendering
    ============================================================ */
-function renderAll(){ renderProjectSelect(); renderTabs(); renderStage(); renderList(); renderPins(); renderEdit(); Sync.renderBadge(); }
+function renderAll(){ renderProjectSelect(); renderTabs(); renderStage(); renderList(); renderPins(); renderEdit(); SyncUI.renderBadge(); }
 
 function renderProjectSelect(){
   const sel = $('projectSelect');
@@ -708,7 +683,7 @@ function renderTabs(){
   el.innerHTML = plans.map(p => { const cnt = projectMarkers(proj.id).filter(m => m.planId === p.id).length; return `<button data-id="${p.id}" class="${p.id === S.planId ? 'active' : ''}">${esc(p.name)} <span class="muted">${cnt}</span></button>`; }).join('');
   el.querySelectorAll('button').forEach(b => b.onclick = () => switchPlan(b.dataset.id));
 }
-async function switchPlan(id){ if (id === S.planId) return; S.planId = id; S.selId = null; await saveMeta(); renderTabs(); renderStage(); renderList(); renderPins(); renderEdit(); }
+async function switchPlan(id){ if (id === S.planId) return; S.planId = id; S.selId = null; saveMeta(); renderTabs(); renderStage(); renderList(); renderPins(); renderEdit(); }
 
 function renderStage(){
   const proj = curProject(), plan = curPlan(); const empty = $('stage-empty');
@@ -801,7 +776,7 @@ function renderEdit(focus){
     <div class="ep-actions"><button id="epShow">${esc(t('showOnPlan'))}</button><span class="grow"></span><button class="danger" id="epDel">${esc(t('deleteMarker'))}</button></div>`;
   renderPhotoStrip(m);
   for (const inp of [$('epPhotoFile'), $('epPhotoCam')]) inp.onchange = async () => { const f = inp.files; if (!f.length) return; await addPhotos(m, f); inp.value = ''; renderPhotoStrip(m); renderList(); };
-  const upd = () => { m.title = $('epTitle').value; m.categoryId = $('epCat').value || null; m.notes = $('epNotes').value; m.done = $('epDone').checked; if (m.categoryId && proj.lastCategoryId !== m.categoryId) { proj.lastCategoryId = m.categoryId; DB.put('projects', proj); } scheduleSave(m); };
+  const upd = () => { m.title = $('epTitle').value; m.categoryId = $('epCat').value || null; m.notes = $('epNotes').value; m.done = $('epDone').checked; if (m.categoryId && proj.lastCategoryId !== m.categoryId) { proj.lastCategoryId = m.categoryId; saveProject(proj); } scheduleSave(m); };
   const refresh = () => { renderList(); renderPins(); const b = ep.querySelector('.ep-badge'); if (b) b.style.background = catColor(proj, m.categoryId); };
   $('epTitle').addEventListener('input', () => { upd(); const li = document.querySelector(`.mitem[data-id="${m.id}"] .title`); if (li) { li.textContent = m.title || t('untitled'); li.classList.toggle('empty', !m.title); } });
   $('epNotes').addEventListener('input', upd);
@@ -834,7 +809,7 @@ async function deleteProjectCascade(proj){
   for (const ph of projectPhotos(proj.id)) await delRec('photos', ph, {silent: true});
   for (const m of projectMarkers(proj.id)) await delRec('markers', m, {silent: true});
   await delRec('projects', proj);
-  if (S.projectId === proj.id) { S.projectId = live(S.projects)[0] ? live(S.projects)[0].id : null; S.planId = curProject() && curProject().planIds[0] || null; S.selId = null; await saveMeta(); }
+  if (S.projectId === proj.id) { S.projectId = live(S.projects)[0] ? live(S.projects)[0].id : null; S.planId = curProject() && curProject().planIds[0] || null; S.selId = null; saveMeta(); }
 }
 
 function openProjectModal(id){
@@ -883,7 +858,7 @@ function openProjectModal(id){
     S.projectId = draft.id;
     if (!draft.planIds.includes(S.planId)) S.planId = draft.planIds[0] || null;
     if (!projectMarkers(draft.id).find(mk => mk.id === S.selId)) S.selId = null;
-    await saveMeta(); m.close(); renderAll();
+    saveMeta(); m.close(); renderAll();
   };
   setTimeout(() => m.el.querySelector('#pjName').focus(), 30);
 }
@@ -914,7 +889,7 @@ function openLibrary(onClose){
           pr.planIds = pr.planIds.filter(x => x !== p.id); await saveProject(pr);
         }
         await delRec('plans', p);
-        if (S.planId === p.id) { S.planId = curProject() && curProject().planIds[0] || null; S.selId = null; await saveMeta(); }
+        if (S.planId === p.id) { S.planId = curProject() && curProject().planIds[0] || null; S.selId = null; saveMeta(); }
         render(); renderAll();
       };
     });
@@ -955,14 +930,14 @@ $('btnProjectMenu').onclick = e => {
         for (const ph of markerPhotos(mk.id)) await putRec('photos', {...ph, id: uid(), markerId: nm.id, projectId: d.id}, {silent: true});
         await putRec('markers', nm, {silent: true});
       }
-      await saveProject(d); S.projectId = d.id; S.selId = null; await saveMeta(); renderAll();
+      await saveProject(d); S.projectId = d.id; S.selId = null; saveMeta(); renderAll();
     }},
     '-',
     {label: t('renumber'), disabled: !proj || !curPlan(), action: async () => {
       if (!confirm(t('confirmRenumber'))) return;
       const ms = planMarkers().sort((a, b) => a.createdAt - b.createdAt);
       for (let i = 0; i < ms.length; i++) { ms[i].n = i + 1; await putRec('markers', ms[i], {silent: true}); }
-      Sync.notifyChanged(); renderList(); renderPins(); renderEdit();
+      renderList(); renderPins(); renderEdit();
     }},
     '-',
     {label: t('deleteProject'), disabled: !proj, action: async () => { if (!confirm(t('confirmDeleteProject', {name: proj.name}))) return; await deleteProjectCascade(proj); renderAll(); }},
@@ -972,7 +947,7 @@ $('projectSelect').onchange = async e => {
   await flushSave();
   S.projectId = e.target.value || null; S.selId = null;
   const p = curProject(); S.planId = p && p.planIds[0] || null;
-  await saveMeta(); renderAll();
+  saveMeta(); renderAll();
 };
 
 /* ============================================================
@@ -1033,11 +1008,11 @@ async function mergeRecords(store, recs){
 async function importJson(file){
   let data; try { data = JSON.parse(await file.text()); if (data.format !== 'floorplan-marker') throw 0; } catch { toast(t('importError')); return; }
   const norm = await normalizeImport(data);
-  for (const a of norm.assets) if (!assets.has(a.hash)) { await DB.put('assets', {hash: a.hash, blob: a.blob, mime: a.blob.type, size: a.blob.size}); assets.set(a.hash, a.blob); }
+  for (const a of norm.assets) if (!assets.has(a.hash)) await storeAsset(a.blob);
   const np = await mergeRecords('projects', norm.projects), nf = await mergeRecords('plans', norm.plans), nm = await mergeRecords('markers', norm.markers);
   await mergeRecords('photos', norm.photos);
   if (!curProject() && live(S.projects)[0]) { S.projectId = live(S.projects)[0].id; S.planId = curProject().planIds[0] || null; }
-  await saveMeta(); Sync.notifyChanged(); renderAll(); toast(t('imported', {p: np, f: nf, m: nm}));
+  saveMeta(); renderAll(); toast(t('imported', {p: np, f: nf, m: nm}));
 }
 function exportCsv(proj){
   const rows = [[t('plan'), t('nr'), t('title'), t('category'), t('notes'), t('status'), t('photos'), 'x', 'y']];
@@ -1093,269 +1068,53 @@ function buildPrint(proj){
 $('btnPrint').onclick = () => { const p = curProject(); if (!p) return; if (buildPrint(p)) setTimeout(() => window.print(), 150); };
 
 /* ============================================================
-   Peer-to-peer sync (PeerJS over WebRTC)
-   - identity: persistent UUID in meta store, registered with the PeerJS broker
-   - contacts: peers we dial every 30 s; unknown incoming peers need approval
-   - protocol per connection: manifest -> want -> records + assets (64 KB chunks) -> done
-   - last-write-wins per record on updatedAt; assets are content-addressed (SHA-256)
-   Only signalling goes through the broker; records and photo bytes travel peer to peer.
-   For testing against a private PeerJS server set localStorage['fpm-peer-server']
-   to JSON like {"host":"localhost","port":9000,"path":"/","secure":false}.
+   Sync integration — the transport (PeerJS, leader election, contacts, panel)
+   lives in the shared ToolDeck layer (SfhaSync). This app only:
+   - re-reads its collections from SfhaSync when a `changed` event arrives
+     (local puts, other windows, or remote merges) and re-renders,
+   - pulls newly arrived assets into its cache,
+   - shows a status dot and opens SfhaSync's panel from the header button.
    ============================================================ */
-const Sync = (() => {
-  const ICE = {iceServers: [
-    {urls: ['stun:stun.l.google.com:19302', 'stun:stun.relay.metered.ca:80']},
-    {urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject'},
-    {urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject'},
-    {urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject'},
-  ]};
-  const CHUNK = 65536, DIAL_MS = 30000, DEBOUNCE_MS = 10000, OPEN_TIMEOUT = 20000, BUFFER_HIGH = 4 * 1048576;
-  let peer = null, myId = null, status = 'offline', statusMsg = '', panel = null, dialTimer = null;
-  const conns = new Map();  // peerId -> entry {conn, dir, state, lastManifest, timer, expect, incoming, stats}
-  const pending = new Map(); // unknown incoming peers awaiting the user's decision
-  const logLines = [];
-  const log = msg => { logLines.push(new Date().toLocaleTimeString() + ' ' + msg); if (logLines.length > 40) logLines.shift(); renderPanel(); };
-  const contact = id => S.contacts.find(c => c.peerId === id);
-  const sleep = ms => new Promise(r => setTimeout(r, ms));
-
-  /* ---------- identity & broker ---------- */
-  async function init(){
-    const m = await DB.get('meta', 'peerId');
-    myId = m ? m.id : uid();
-    if (!m) await DB.put('meta', {key: 'peerId', id: myId});
+const SyncUI = (() => {
+  let rerenderTimer = null, dirtyColls = new Set(), assetPending = false;
+  function init(){
+    SfhaSync.onChange(ev => {
+      if (!ev) return;
+      if (ev.asset) { assetPending = true; schedule(); return; }
+      if (ev.app && ev.app !== APP && ev.app !== '*') return;
+      (ev.coll && ev.coll !== '*' ? [ev.coll] : RECORD_STORES).forEach(c => { if (RECORD_STORES.includes(c)) dirtyColls.add(c); });
+      schedule();
+    });
+    if (SfhaSync.onStatus) SfhaSync.onStatus(() => renderBadge());
     renderBadge();
-    if (!window.Peer) {
-      await new Promise(res => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.5/peerjs.min.js'; s.onload = res; s.onerror = () => { status = 'disabled'; res(); }; document.head.appendChild(s); });
-    }
-    if (!window.Peer) { status = 'disabled'; renderBadge(); return; }
-    createPeer();
-    window.addEventListener('beforeunload', () => { if (peer) peer.destroy(); });
   }
-  function createPeer(){
-    let opts = {debug: 0, config: ICE};
-    try { const o = JSON.parse(localStorage.getItem('fpm-peer-server') || 'null'); if (o) opts = {...opts, ...o}; } catch {}
-    status = 'connecting'; renderBadge();
-    peer = new Peer(myId, opts);
-    peer.on('open', () => { status = 'online'; statusMsg = ''; log('broker: online as ' + myId.slice(0, 8)); renderBadge(); dialAll(); });
-    peer.on('connection', handleIncoming);
-    peer.on('disconnected', () => { if (status === 'id-taken') return; status = 'offline'; renderBadge(); setTimeout(() => { if (peer && !peer.destroyed && status === 'offline') { status = 'connecting'; renderBadge(); peer.reconnect(); } }, 5000); });
-    peer.on('close', () => { if (status !== 'id-taken') status = 'offline'; renderBadge(); });
-    peer.on('error', err => {
-      const type = err.type || '';
-      if (type === 'unavailable-id') { status = 'id-taken'; log('broker: ID already in use elsewhere'); try { peer.destroy(); } catch {} renderBadge(); return; }
-      if (type === 'peer-unavailable') return; // dial failure: the contact is simply offline
-      if (type === 'network' || type === 'server-error' || type === 'socket-error' || type === 'socket-closed') { status = 'offline'; statusMsg = err.message || type; renderBadge(); setTimeout(() => { if (status === 'offline') { try { peer.destroy(); } catch {} createPeer(); } }, 15000); return; }
-      log('error: ' + type + ' ' + (err.message || '')); statusMsg = err.message || type; renderBadge();
-    });
-    clearInterval(dialTimer); dialTimer = setInterval(dialAll, DIAL_MS);
+  function schedule(){ clearTimeout(rerenderTimer); rerenderTimer = setTimeout(refresh, 150); }
+  async function refresh(){
+    const colls = [...dirtyColls]; dirtyColls.clear();
+    const wantAssets = assetPending || colls.includes('plans') || colls.includes('photos'); assetPending = false;
+    await flushSave(); // do not let a pending local edit be overwritten by a stale re-read
+    for (const c of colls) await loadColl(c);
+    if (wantAssets) await loadAssets();
+    if (!curProject() && live(S.projects)[0]) { S.projectId = live(S.projects)[0].id; S.planId = curProject().planIds[0] || null; saveMeta(); }
+    const p = curProject(); if (p && !p.planIds.includes(S.planId)) { S.planId = p.planIds[0] || null; saveMeta(); }
+    const active = document.activeElement; const editing = active && active.closest && active.closest('#editpanel');
+    if (editing) { renderProjectSelect(); renderTabs(); renderStage(); renderList(); renderPins(); const m = S.markers.find(x => x.id === S.selId && !x.deleted); if (m) renderPhotoStrip(m); else renderEdit(); }
+    else renderAll();
   }
-
-  /* ---------- dialling & dedupe ---------- */
-  function dialAll(){
-    if (status !== 'online' || !peer || peer.destroyed || peer.disconnected) return;
-    for (const c of S.contacts) if (!conns.has(c.peerId)) dial(c.peerId);
-  }
-  function dial(pid){
-    let conn; try { conn = peer.connect(pid, {reliable: true}); } catch { return; }
-    if (!conn) return;
-    setupConn(conn, 'out');
-    setTimeout(() => { const e = conns.get(pid); if (e && e.conn === conn && e.state !== 'open') { try { conn.close(); } catch {} if (conns.get(pid) === e) conns.delete(pid); renderPanel(); } }, OPEN_TIMEOUT);
-  }
-  function handleIncoming(conn){
-    const pid = conn.peer;
-    if (contact(pid)) return adopt(conn, 'in');
-    if (pending.has(pid)) { try { conn.close(); } catch {} return; }
-    pending.set(pid, conn);
-    conn.on('close', () => { if (pending.get(pid) === conn) { pending.delete(pid); } });
-    promptUnknown(pid, async label => {
-      pending.delete(pid);
-      if (label === null) { try { conn.close(); } catch {} return; }
-      await addContact(pid, label, {noDial: true});
-      adopt(conn, 'in');
-    });
-  }
-  /** Both sides may dial at once: the peer with the lexically lower ID keeps its outgoing connection. */
-  function adopt(conn, dir){
-    const pid = conn.peer, existing = conns.get(pid);
-    if (existing && existing.conn !== conn) {
-      const keep = myId < pid ? 'out' : 'in';
-      if (dir !== keep) { log('dedupe: dropping duplicate ' + dir + ' from ' + pid.slice(0, 8)); try { conn.close(); } catch {} return; }
-      log('dedupe: replacing ' + existing.dir + ' with ' + dir + ' for ' + pid.slice(0, 8));
-      const old = existing.conn; conns.delete(pid); try { old.close(); } catch {}
-    }
-    setupConn(conn, dir);
-  }
-  function setupConn(conn, dir){
-    const pid = conn.peer;
-    const entry = {conn, dir, state: 'connecting', lastManifest: 0, timer: null, expect: null, incoming: {}, stats: null};
-    conns.set(pid, entry); renderPanel();
-    const onOpen = () => {
-      if (conns.get(pid) !== entry) return;
-      entry.state = 'open'; log((dir === 'out' ? '→ ' : '← ') + 'connected ' + pid.slice(0, 8));
-      const c = contact(pid); if (c) { c.lastSeen = Date.now(); DB.put('contacts', c); }
-      renderBadge(); requestSync(pid);
-    };
-    conn.on('open', onOpen);
-    conn.on('data', data => onData(entry, data).catch(e => log('error: ' + (e.message || e))));
-    const gone = () => { if (conns.get(pid) === entry) { conns.delete(pid); clearTimeout(entry.timer); log('closed ' + pid.slice(0, 8)); renderBadge(); } };
-    conn.on('close', gone); conn.on('error', e => { log('conn error ' + pid.slice(0, 8) + ': ' + (e.message || e.type || e)); gone(); });
-    if (conn.open) onOpen();
-  }
-
-  /* ---------- protocol ---------- */
-  function manifest(){
-    const records = {};
-    for (const s of RECORD_STORES) records[s] = S[s].map(r => [r.id, r.updatedAt, r.deleted ? 1 : 0]);
-    const hashes = new Set([...live(S.plans).map(p => p.hash), ...live(S.photos).map(p => p.hash)].filter(h => h && assets.has(h)));
-    return {t: 'manifest', records, assets: [...hashes]};
-  }
-  /** Send our manifest to a peer, at most once per 10 s per peer (later calls are coalesced into one delayed send). */
-  function requestSync(pid){
-    const e = conns.get(pid); if (!e || e.state !== 'open') return;
-    const wait = DEBOUNCE_MS - (Date.now() - e.lastManifest);
-    if (wait > 0) { if (!e.timer) e.timer = setTimeout(() => { e.timer = null; requestSync(pid); }, wait); return; }
-    e.lastManifest = Date.now(); e.conn.send(manifest());
-  }
-  async function onData(entry, msg){
-    const pid = entry.conn.peer; if (!msg || typeof msg !== 'object') return;
-    switch (msg.t) {
-      case 'manifest': {
-        const want = {records: {}, assets: []}; let nrec = 0;
-        for (const s of RECORD_STORES) {
-          const local = new Map(S[s].map(r => [r.id, r.updatedAt]));
-          want.records[s] = (msg.records[s] || []).filter(([id, upd]) => !local.has(id) || local.get(id) < upd).map(([id]) => id);
-          nrec += want.records[s].length;
-        }
-        want.assets = (msg.assets || []).filter(h => !assets.has(h));
-        entry.expect = {assets: new Set(want.assets), done: false}; entry.stats = {records: 0, assets: 0};
-        if (nrec || want.assets.length) log('← ' + pid.slice(0, 8) + ': requesting ' + nrec + ' records, ' + want.assets.length + ' files');
-        entry.conn.send({t: 'want', ...want}); renderPanel(); break;
-      }
-      case 'want': {
-        const stores = {};
-        for (const s of RECORD_STORES) { const ids = new Set(msg.records[s] || []); stores[s] = S[s].filter(r => ids.has(r.id)); }
-        entry.conn.send({t: 'records', stores});
-        for (const hash of msg.assets || []) { const blob = assets.get(hash); if (blob) await sendAsset(entry.conn, hash, blob); }
-        entry.conn.send({t: 'done'}); break;
-      }
-      case 'records': {
-        let n = 0; for (const s of RECORD_STORES) n += await mergeRecords(s, msg.stores[s] || []);
-        if (entry.stats) entry.stats.records += n;
-        if (n) afterRemoteChange(); break;
-      }
-      case 'asset': entry.incoming[msg.hash] = {size: msg.size, mime: msg.mime, parts: [], got: 0}; break;
-      case 'chunk': {
-        const inc = entry.incoming[msg.hash]; if (!inc) break;
-        const part = msg.data instanceof ArrayBuffer ? new Uint8Array(msg.data) : new Uint8Array(msg.data.buffer || msg.data);
-        inc.parts.push(part); inc.got += part.byteLength;
-        if (inc.got >= inc.size) {
-          delete entry.incoming[msg.hash];
-          const blob = new Blob(inc.parts, {type: inc.mime});
-          const h = await sha256(blob);
-          if (h === msg.hash) { if (!assets.has(h)) { await DB.put('assets', {hash: h, blob, mime: inc.mime, size: blob.size}); assets.set(h, blob); } if (entry.stats) entry.stats.assets++; afterRemoteChange(); }
-          else log('hash mismatch for file from ' + pid.slice(0, 8) + ' — discarded');
-          if (entry.expect) { entry.expect.assets.delete(msg.hash); checkFinished(entry); }
-        }
-        break;
-      }
-      case 'done': if (entry.expect) { entry.expect.done = true; checkFinished(entry); } break;
-    }
-  }
-  async function sendAsset(conn, hash, blob){
-    const buf = await blob.arrayBuffer();
-    conn.send({t: 'asset', hash, size: buf.byteLength, mime: blob.type});
-    for (let off = 0; off < buf.byteLength; off += CHUNK) {
-      conn.send({t: 'chunk', hash, data: buf.slice(off, Math.min(off + CHUNK, buf.byteLength))});
-      while (conn.dataChannel && conn.dataChannel.bufferedAmount > BUFFER_HIGH) await sleep(30);
-    }
-  }
-  function checkFinished(entry){
-    if (!entry.expect || !entry.expect.done || entry.expect.assets.size) return;
-    const pid = entry.conn.peer, st = entry.stats || {records: 0, assets: 0}; entry.expect = null; entry.lastSyncAt = Date.now();
-    const c = contact(pid); if (c) { c.lastSeen = Date.now(); c.lastSync = Date.now(); DB.put('contacts', c); }
-    if (st.records || st.assets) toast(t('syncDone', {name: c ? c.label : pid.slice(0, 8), r: st.records, a: st.assets}));
-    log('sync with ' + pid.slice(0, 8) + ' done: ' + st.records + ' records, ' + st.assets + ' files'); renderPanel();
-  }
-  let rerenderTimer = null;
-  function afterRemoteChange(){
-    clearTimeout(rerenderTimer);
-    rerenderTimer = setTimeout(() => {
-      if (!curProject() && live(S.projects)[0]) { S.projectId = live(S.projects)[0].id; S.planId = curProject().planIds[0] || null; }
-      const p = curProject(); if (p && !p.planIds.includes(S.planId)) S.planId = p.planIds[0] || null;
-      const active = document.activeElement; const editing = active && active.closest && active.closest('#editpanel');
-      if (editing) { renderList(); renderPins(); renderTabs(); renderStage(); } else renderAll();
-      notifyChanged(); // relay to other connected peers (they request only what they lack, so this terminates)
-    }, 150);
-  }
-  /** Called by putRec after local changes: offer our manifest to every connected peer (debounced). */
-  function notifyChanged(){ for (const pid of conns.keys()) requestSync(pid); }
-
-  /* ---------- contacts ---------- */
-  function validId(id){ return /^[A-Za-z0-9_-]{8,64}$/.test(id); }
-  async function addContact(pid, label, opts = {}){
-    pid = pid.trim(); if (!validId(pid)) { toast(t('invalidPeerId')); return false; }
-    if (pid === myId) { toast(t('selfPeerId')); return false; }
-    let c = contact(pid);
-    if (c) { c.label = label || c.label; } else { c = {peerId: pid, label: label || pid.slice(0, 8), lastSeen: 0}; S.contacts.push(c); }
-    await DB.put('contacts', c); renderPanel();
-    if (!opts.noDial && status === 'online' && !conns.has(pid)) dial(pid);
-    return true;
-  }
-  async function removeContact(pid){
-    const e = conns.get(pid); if (e) { conns.delete(pid); try { e.conn.close(); } catch {} }
-    S.contacts = S.contacts.filter(c => c.peerId !== pid); await DB.del('contacts', pid); renderBadge();
-  }
-  function promptUnknown(pid, cb){
-    const m = modal(t('unknownPeer'), `<div class="sync-id">${esc(pid)}</div><p class="small muted">${esc(t('unknownPeerHelp'))}</p><label class="f">${esc(t('name'))}</label><input type="text" id="upLabel" placeholder="${esc(t('labelPh'))}">`,
-      `<button id="upNo">${esc(t('decline'))}</button><button class="primary" id="upYes">${esc(t('accept'))}</button>`);
-    let answered = false; const answer = v => { if (answered) return; answered = true; m.close(); cb(v); };
-    m.el.querySelector('#upYes').onclick = () => answer(m.el.querySelector('#upLabel').value.trim() || pid.slice(0, 8));
-    m.el.querySelector('#upNo').onclick = () => answer(null);
-    m.el.querySelector('.m-close').onclick = () => answer(null);
-  }
-
-  /* ---------- UI ---------- */
   function renderBadge(){
-    const dot = $('syncDot'); if (!dot) return;
-    const open = [...conns.values()].filter(e => e.state === 'open').length;
-    dot.className = 'dot ' + (status === 'id-taken' || status === 'error' ? 'err' : open ? 'on' : status === 'online' || status === 'connecting' ? 'busy' : '');
-    $('btnSync').title = t('sync') + ': ' + brokerText() + (open ? ` · ${open} ${t('stConnected').toLowerCase()}` : '');
-    renderPanel();
+    const dot = $('syncDot'); if (!dot || !window.SfhaSync) return;
+    let st = {}; try { st = SfhaSync.status() || {}; } catch {}
+    const conns = Array.isArray(st.connections) ? st.connections : [];
+    const open = conns.filter(c => !c || typeof c !== 'object' || /open|connected/i.test(c.state || c.status || 'open')).length;
+    const broker = String(st.broker || '').toLowerCase();
+    const online = /online|open|connected/.test(broker);
+    const bad = /taken|error|disabled/.test(broker);
+    dot.className = 'dot ' + (bad ? 'err' : open ? 'on' : online || (st.leaderPresent && !st.leader) ? 'busy' : '');
+    $('btnSync').title = `${t('sync')}: ${st.broker || '…'}${st.leader ? '' : st.leaderPresent ? ' · ' + t('viaOtherWindow') : ''}${open ? ` · ${open} ${t('stConnected').toLowerCase()}` : ''}`;
   }
-  function brokerText(){
-    return status === 'online' ? t('brokerOnline') : status === 'connecting' ? t('brokerConnecting') : status === 'id-taken' ? t('brokerIdTaken') : status === 'disabled' ? t('syncDisabled') : status === 'error' ? t('brokerError', {msg: statusMsg}) : t('brokerOffline') + (statusMsg ? ' (' + statusMsg + ')' : '');
-  }
-  function renderPanel(){
-    if (!panel || !document.body.contains(panel.el)) { panel = null; return; }
-    const body = panel.el.querySelector('#syncBody');
-    const fmt = ts => ts ? new Date(ts).toLocaleString() : t('never');
-    body.innerHTML = `
-      <label class="f">${esc(t('myId'))}</label>
-      <div class="sync-id"><span class="grow">${esc(myId || '…')}</span><button class="icon" id="syCopy">${esc(t('copy'))}</button></div>
-      <div class="small ${status === 'online' ? 'muted' : ''}" style="margin-top:6px"><span class="dot ${status === 'online' ? 'on' : status === 'connecting' ? 'busy' : status === 'id-taken' || status === 'error' || status === 'disabled' ? 'err' : ''}"></span>${esc(brokerText())}</div>
-      <label class="f">${esc(t('contacts'))}</label>
-      <div id="syContacts">${S.contacts.length ? S.contacts.map(c => { const e = conns.get(c.peerId); const st = e && e.state === 'open' ? (e.expect ? 'stSyncing' : 'stConnected') : e ? 'stConnecting' : 'stOffline';
-        return `<div class="contact" data-id="${esc(c.peerId)}"><span class="dot ${e && e.state === 'open' ? (e.expect ? 'busy' : 'on') : e ? 'busy' : ''}"></span><div class="grow"><div class="c-name">${esc(c.label)}</div><div class="c-id">${esc(c.peerId)}</div><div class="c-state">${esc(t(st))} · ${esc(t('lastSync'))}: ${esc(fmt(c.lastSync))}</div></div><button class="icon sy-now" ${e && e.state === 'open' ? '' : 'disabled'} title="${esc(t('syncNow'))}">⟳</button><button class="icon danger sy-del" title="${esc(t('removeContact'))}">✕</button></div>`; }).join('') : `<div class="small muted">${esc(t('noContacts'))}</div>`}</div>
-      <div class="row" style="margin-top:8px;flex-wrap:wrap"><input type="text" id="syPeer" class="grow" placeholder="${esc(t('peerIdPh'))}" autocomplete="off" style="min-width:180px"><input type="text" id="syLabel" placeholder="${esc(t('labelPh'))}" style="width:160px"><button class="primary" id="syAdd">${esc(t('addContact'))}</button></div>
-      <p class="small muted">${esc(t('syncHelp'))}</p>
-      <div class="sync-log">${logLines.length ? logLines.map(esc).join('\n') : '—'}</div>`;
-    body.querySelector('#syCopy').onclick = async () => { try { await navigator.clipboard.writeText(myId); toast(t('copied')); } catch { const r = document.createRange(); r.selectNodeContents(body.querySelector('.sync-id span')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); } };
-    body.querySelector('#syAdd').onclick = async () => { if (await addContact(body.querySelector('#syPeer').value, body.querySelector('#syLabel').value.trim())) { renderPanel(); } };
-    body.querySelectorAll('.contact').forEach(row => {
-      const pid = row.dataset.id;
-      row.querySelector('.sy-now').onclick = () => { const e = conns.get(pid); if (e) { e.lastManifest = 0; clearTimeout(e.timer); e.timer = null; requestSync(pid); } };
-      row.querySelector('.sy-del').onclick = async () => { const c = contact(pid); if (confirm(t('confirmRemoveContact', {name: c ? c.label : pid}))) { await removeContact(pid); renderPanel(); } };
-    });
-    const logEl = body.querySelector('.sync-log'); logEl.scrollTop = logEl.scrollHeight;
-  }
-  function openPanel(){
-    panel = modal(t('sync'), `<div id="syncBody"></div>`, `<button id="syClose">${esc(t('close'))}</button>`);
-    panel.el.querySelector('#syClose').onclick = panel.close;
-    renderPanel(); dialAll();
-  }
-  return {init, notifyChanged, renderBadge, openPanel, addContact, removeContact, get myId(){ return myId; }, get status(){ return status; }, conns};
+  return {init, renderBadge};
 })();
-$('btnSync').onclick = () => Sync.openPanel();
+$('btnSync').onclick = () => { if (window.SfhaSync && SfhaSync.openPanel) SfhaSync.openPanel(); };
 
 /* ============================================================
    Wiring
@@ -1385,15 +1144,16 @@ window.addEventListener('pagehide', () => flushSave());
 
 (async function init(){
   applyI18n();
-  try { await DB.open(); } catch (e) { toast('Database error: ' + (e.message || e)); return; }
-  await migrate();
+  if (!window.SfhaSync) { $('stage-empty').classList.remove('hidden'); $('stage-empty').innerHTML = `<div><b>sync.v1.js could not be loaded</b><br><span class="muted">${esc(t('noSyncLib'))}</span></div>`; return; }
+  try { await SfhaSync.init({app: APP}); } catch (e) { toast('SfhaSync error: ' + (e.message || e)); return; }
+  await SfhaSync.migrate('v1', migrateOldDb);
   await loadAll();
-  const meta = await DB.get('meta', 'state');
+  const meta = loadMeta();
   if (meta) { S.projectId = meta.projectId; S.planId = meta.planId; }
   if (!curProject() && live(S.projects)[0]) S.projectId = live(S.projects)[0].id;
   const p = curProject(); if (p && !p.planIds.includes(S.planId)) S.planId = p.planIds[0] || null;
   renderAll();
-  Sync.init();
+  SyncUI.init();
 })();
 </script>
 </body>
