@@ -201,7 +201,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
     <button id="btnPlans" data-i18n-title="plans" title="Plattegronden"><span class="ico">&#9638;</span><span class="lbl" data-i18n="plans">Plattegronden</span></button>
     <button id="btnPrint" class="icon" data-i18n-title="print" title="Afdrukken">&#128438;</button>
     <button id="btnData" class="icon" data-i18n-title="importExport" title="Import / export">&#8645;</button>
-    <button id="btnSync" data-i18n-title="sync" title="Sync"><span class="dot" id="syncDot"></span><span class="lbl">Sync</span></button>
+    <button id="btnSync" data-sfha-badge data-i18n-title="sync" title="Sync"><span class="dot" id="syncDot"></span><span class="lbl">Sync</span></button>
     <button id="btnLang" class="icon" title="Language">EN</button>
   </header>
   <main>
@@ -1031,8 +1031,11 @@ $('btnData').onclick = () => {
       <hr style="border:none;border-top:1px solid var(--border);margin:6px 0">
       <button class="primary" id="imBtn">${esc(t('importJson'))}</button><input type="file" id="imFile" accept="application/json,.json" class="hidden">
       <div class="small muted">${esc(t('importHelp'))}</div>
+      <hr style="border:none;border-top:1px solid var(--border);margin:6px 0">
+      <button id="dSync">&#8644; ${esc(t('sync'))}</button>
     </div>`, `<button id="dClose">${esc(t('close'))}</button>`);
   m.el.querySelector('#dClose').onclick = m.close;
+  m.el.querySelector('#dSync').onclick = () => { m.close(); $('btnSync').onclick(); };
   m.el.querySelector('#exProj').onclick = () => exportJson([proj]);
   m.el.querySelector('#exAll').onclick = () => exportJson(live(S.projects));
   m.el.querySelector('#exCsv').onclick = () => exportCsv(proj);
